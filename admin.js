@@ -1,5 +1,5 @@
 import { reportsConfig } from './reports-config.js?v=vecinos-2';
-import { formatReportDate, publicStatuses, reportCategories, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=vecinos-2';
+import { formatReportDate, publicStatuses, reportCategoryOption, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=categorias-1';
 
 const pageSize = 100;
 const reportColumns = 'request_id,tracking_number,category,description,latitude,longitude,status,created_at,updated_at';
@@ -281,7 +281,7 @@ function renderReport(report) {
   const field = name => card.querySelector(`[data-${name}]`);
   const tracking = report.tracking_number || '—';
   field('tracking').textContent = tracking;
-  field('category').textContent = Object.hasOwn(reportCategories, report.category) ? reportCategories[report.category] : 'Reclamo';
+  field('category').textContent = reportCategoryOption(report.category);
   field('description').textContent = report.description ?? '';
   field('location').textContent = [report.location_label, formatCoordinates(report)].filter(Boolean).join(' · ');
   field('previous').hidden = report.previously_reported !== true;

@@ -33,7 +33,17 @@
 .report-signal--risk { --signal-fill: var(--signal-red, #b6342f); --signal-ink: #fff; }
 .report-signal--services { --signal-fill: var(--signal-blue, #287abd); --signal-ink: #fff; }
 .report-signal--lighting { --signal-fill: var(--signal-yellow, #f8c94c); }
-.report-signal-badge--key { width: 22px; height: 22px; flex: none; font-size: 11px; filter: none; }
+.report-signal-badge--key { width: 22px; height: 22px; flex: none; font-size: 12px; filter: none; }
+
+.report-signal-glyph, .report-category-glyph {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.report-signal-marker .report-signal-glyph { font-size: 17px; }
+.report-category-title { display: flex; align-items: center; gap: .45em; }
+.report-category-glyph { flex: none; }
 
 .leaflet-marker-icon.report-signal-marker:focus-visible {
   outline: 2px solid #075c70;
@@ -60,5 +70,6 @@
 .report-signal-marker.report-signal-marker--resolved::after { content: '✓'; }
 
 @media (max-width: 660px) {
-  .report-signal-marker .report-signal-badge { width: 28px; height: 28px; font-size: 13px; }
+  .report-signal-marker .report-signal-badge { width: 28px; height: 28px; }
+  .report-signal-marker .report-signal-glyph { font-size: 15px; }
 }

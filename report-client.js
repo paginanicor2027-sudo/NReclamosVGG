@@ -26,6 +26,36 @@ export const reportCategories = Object.freeze({
   otros: 'Otros',
 });
 
+export const reportCategoryIcons = Object.freeze({
+  baches: '🚧',
+  luminarias: '💡',
+  residuos: '🗑️',
+  desagues: '🌧️',
+  agua: '💧',
+  arbolado: '🌳',
+  cloacas: '🚽',
+  cableado: '🔌',
+  comercios: '🏭',
+  ambiente: '♻️',
+  educacion: '🏫',
+  gas: '🔥',
+  electricidad: '⚡',
+  espacios_publicos: '🏞️',
+  plagas: '🦟',
+  salud: '🏥',
+  seguridad: '🛡️',
+  tramites: '📋',
+  transito: '🚦',
+  veredas: '🚶',
+  otros: '📍',
+});
+
+export function reportCategoryOption(value) {
+  return Object.hasOwn(reportCategories, value)
+    ? `${reportCategories[value]} ${reportCategoryIcons[value]}`
+    : 'Reclamo';
+}
+
 export const reportStatuses = Object.freeze({
   pending_review: 'Pendiente de revisión',
   published: 'Publicado',

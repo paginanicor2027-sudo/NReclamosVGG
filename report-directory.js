@@ -1,14 +1,17 @@
 import { reportsConfig } from './reports-config.js?v=vecinos-2';
-import { formatReportDate, publicStatuses, reportCategories, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=vecinos-2';
+import { formatReportDate, publicStatuses, reportCategories, reportCategoryIcons, reportCategoryOption, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=categorias-1';
 
 const publicIdPattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const roadwayCategories = new Set(['baches', 'arbolado', 'espacios_publicos', 'transito', 'veredas']);
 const riskCategories = new Set(['seguridad', 'gas', 'electricidad', 'cableado']);
-const signalGlyphs = { roads: 'V', risk: '!', services: 'S', lighting: '•' };
 
-function addOptions(select, defaultLabel, labels, values) {
+function addOptions(select, defaultLabel, labels, values, displayLabel = (value) => labels[value]) {
   select.add(new Option(defaultLabel, ''));
-  for (const value of values) select.add(new Option(labels[value], value));
+  for (const value of values) {
+    const option = new Option(displayLabel(value), value);
+    option.setAttribute('aria-label', labels[value]);
+    select.add(option);
+  }
 }
 
 function appendText(parent, tag, text, className = '') {
@@ -16,6 +19,22 @@ function appendText(parent, tag, text, className = '') {
   element.className = className;
   element.textContent = text;
   parent.append(element);
+}
+
+function categoryGlyph(category) {
+  return reportCategoryIcons[category] ?? reportCategoryIcons.otros;
+}
+
+function appendCategoryTitle(parent, category, className) {
+  const title = document.createElement('strong');
+  title.classList.add('report-category-title');
+  if (className) title.classList.add(className);
+  const glyph = document.createElement('span');
+  glyph.className = 'report-category-glyph';
+  glyph.setAttribute('aria-hidden', 'true');
+  glyph.textContent = categoryGlyph(category);
+  title.append(glyph, reportCategories[category]);
+  parent.append(title);
 }
 
 function signalIcon(leaflet, category, status) {
@@ -27,7 +46,7 @@ function signalIcon(leaflet, category, status) {
   const badge = document.createElement('span');
   badge.className = `report-signal-badge report-signal--${family}`;
   badge.setAttribute('aria-hidden', 'true');
-  appendText(badge, 'span', signalGlyphs[family], 'report-signal-glyph');
+  appendText(badge, 'span', categoryGlyph(category), 'report-signal-glyph');
   return leaflet.divIcon({
     className: `report-signal-marker report-signal-marker--${status}`,
     html: badge,
@@ -41,7 +60,7 @@ function markerPopup(report, endpoint) {
   const popup = document.createElement('div');
   popup.className = 'report-popup';
 
-  appendText(popup, 'strong', reportCategories[report.category]);
+  appendCategoryTitle(popup, report.category);
   appendText(popup, 'p', report.description);
   if (report.locationLabel) appendText(popup, 'p', report.locationLabel);
   appendText(popup, 'p', reportStatuses[report.status]);
@@ -98,7 +117,7 @@ function initializeMapReports(endpoint, map, leaflet) {
   const search = document.getElementById('directory-search');
   const listMessage = document.getElementById('directory-list-status');
   const list = document.getElementById('directory-list');
-  addOptions(category, 'Todas las categorías', reportCategories, Object.keys(reportCategories));
+  addOptions(category, 'Todas las categorías', reportCategories, Object.keys(reportCategories), reportCategoryOption);
   addOptions(state, 'Todos los estados', reportStatuses, publicStatuses);
 
   const markers = leaflet.layerGroup().addTo(map);
@@ -141,7 +160,7 @@ function initializeMapReports(endpoint, map, leaflet) {
       const button = document.createElement('button');
       button.className = 'directory-list-button';
       button.type = 'button';
-      appendText(button, 'strong', reportCategories[report.category], 'directory-list-title');
+      appendCategoryTitle(button, report.category, 'directory-list-title');
       appendText(button, 'span', report.description, 'directory-list-description');
       appendText(button, 'span', [report.locationLabel, reportStatuses[report.status], formatReportDate(report.updatedAt)]
         .filter(Boolean).join(' · '), 'directory-list-meta');

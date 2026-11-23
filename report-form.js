@@ -1,5 +1,5 @@
 import { reportsConfig } from './reports-config.js?v=vecinos-2';
-import { reportCategories, reportEndpoint, reportHeaders } from './report-client.js?v=vecinos-2';
+import { reportCategories, reportCategoryOption, reportEndpoint, reportHeaders } from './report-client.js?v=categorias-1';
 
 const maxDescriptionLength = 400;
 const maxPhotoBytes = 180 * 1024;
@@ -150,7 +150,11 @@ export function initializeReportForm(map, leaflet, boundary) {
     stepNames.review = 'Revisión';
     for (const field of form.querySelectorAll('[data-intake-extra]')) field.hidden = true;
   }
-  for (const [value, label] of Object.entries(reportCategories)) category.add(new Option(label, value));
+  for (const [value, label] of Object.entries(reportCategories)) {
+    const option = new Option(reportCategoryOption(value), value);
+    option.setAttribute('aria-label', label);
+    category.add(option);
+  }
   const gpsButtons = [useGps, useWizardGps];
   for (const button of gpsButtons) button.hidden = !navigator.geolocation;
   copyButton.hidden = !navigator.clipboard?.writeText;
@@ -231,7 +235,7 @@ export function initializeReportForm(map, leaflet, boundary) {
   }
 
   function renderReview() {
-    get('review-category').textContent = reportCategories[category.value] ?? '';
+    get('review-category').textContent = category.value ? reportCategoryOption(category.value) : '';
     get('review-description').textContent = description.value.trim();
     get('review-location').textContent = (extendedIntake && locationLabel.value.trim()) || 'Punto marcado en el mapa';
     get('review-photo').textContent = photo ? 'Foto adjunta' : 'Sin foto';
