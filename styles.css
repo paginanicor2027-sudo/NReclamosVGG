@@ -16,6 +16,7 @@
   --line: #e2e5e8;
   --shadow: 0 3px 16px #0d101521;
   --yellow: #f4ca19;
+  --campaign-yellow: #fcd102;
   --orange: #ff791f;
   --warm: #fff4c7;
   --accent-ink: #914900;
@@ -184,7 +185,7 @@ body {
   row-gap: 2px;
   container-type: inline-size;
   padding: 16px 16px 13px;
-  border-inline-start: 5px solid var(--yellow);
+  border-inline-start: 5px solid var(--campaign-yellow);
   border-radius: 12px;
   color: var(--paper);
   background: var(--panel);
@@ -193,8 +194,8 @@ body {
 .city-tagline {
   margin: 0;
   color: var(--orange);
-  font-size: clamp(.94rem, 5.5cqi, 1.3rem);
-  font-weight: 750;
+  font-size: clamp(1.05rem, 6.1cqi, 1.4rem);
+  font-weight: 800;
   line-height: 1.15;
 }
 
@@ -504,8 +505,8 @@ body {
   gap: 8px;
   margin-inline-start: auto;
   padding-inline: 15px;
-  border-color: #ff9a56;
-  background: var(--orange);
+  border-color: #ffe573;
+  background: var(--campaign-yellow);
   color: #111;
   box-shadow: 0 2px 9px #0005;
   font-family: Arial, sans-serif;
@@ -519,8 +520,7 @@ body {
     linear-gradient(currentColor, currentColor) center / 12px 2px no-repeat;
   content: "";
 }
-.report-trigger:hover { background: #ffae77; }
-.report-trigger:focus-visible { outline-color: var(--yellow); }
+.report-trigger:focus-visible { outline-color: var(--campaign-yellow); }
 .report-secondary { border-color: #c5cbd3; background: var(--paper); color: var(--ink); }
 .report-secondary:hover, .report-text-button:hover { background: #fff8dc; }
 .report-text-button { background: transparent; color: var(--accent-ink); }
