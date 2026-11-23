@@ -1,19 +1,13 @@
 import { readJsonBody } from "../_shared/json-body.ts";
+import { isCategory } from "../_shared/report-category.ts";
 import { isInsideMunicipality, type MunicipalBoundary } from "./boundary.ts";
 
-const categories = [
-  "baches",
-  "luminarias",
-  "residuos",
-  "desagues",
-  "otros",
-] as const;
 const uuidPattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const maxBodyBytes = 8_192;
 
 export interface ReportSubmission {
   requestId: string;
-  category: typeof categories[number];
+  category: string;
   description: string;
   latitude: number;
   longitude: number;
@@ -29,6 +23,8 @@ interface HandlerOptions {
   allowedOrigins: readonly string[];
   boundary: MunicipalBoundary;
   store: ReportStore;
+  readBody?: (request: Request) => Promise<unknown>;
+  acceptsCategory?: (value: unknown) => value is string;
 }
 
 type ErrorCode =
@@ -37,17 +33,19 @@ type ErrorCode =
   | "request_conflict"
   | "service_unavailable";
 
-function validateReport(input: unknown): ReportSubmission | null {
+function validateReport(
+  input: unknown,
+  acceptsCategory: (value: unknown) => value is string,
+): ReportSubmission | null {
   if (typeof input !== "object" || input === null) {
     return null;
   }
 
   const { requestId, category, description, latitude, longitude } =
     input as Record<string, unknown>;
-  const acceptedCategory = categories.find((value) => value === category);
   if (
     typeof requestId !== "string" || !uuidPattern.test(requestId) ||
-    !acceptedCategory ||
+    !acceptsCategory(category) ||
     typeof description !== "string" ||
     typeof latitude !== "number" || !Number.isFinite(latitude) ||
     Math.abs(latitude) > 90 ||
@@ -68,7 +66,7 @@ function validateReport(input: unknown): ReportSubmission | null {
 
   return {
     requestId: requestId.toLowerCase(),
-    category: acceptedCategory,
+    category,
     description: trimmed,
     latitude,
     longitude,
@@ -76,7 +74,13 @@ function validateReport(input: unknown): ReportSubmission | null {
 }
 
 export function createReportHandler(
-  { allowedOrigins, boundary, store }: HandlerOptions,
+  {
+    allowedOrigins,
+    boundary,
+    store,
+    readBody = (request) => readJsonBody(request, maxBodyBytes),
+    acceptsCategory = isCategory,
+  }: HandlerOptions,
 ) {
   const origins = new Set(allowedOrigins);
 
@@ -112,7 +116,7 @@ export function createReportHandler(
       return error(405, "invalid_request");
     }
 
-    const report = validateReport(await readJsonBody(request, maxBodyBytes));
+    const report = validateReport(await readBody(request), acceptsCategory);
     if (!report) {
       return error(400, "invalid_request");
     }

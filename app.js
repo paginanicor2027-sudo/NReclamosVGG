@@ -48,7 +48,7 @@ async function loadBoundary(map) {
     '<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>',
   );
   legend.hidden = false;
-  return bounds;
+  return { bounds, geojson };
 }
 
 function fitCity(map, bounds) {
@@ -103,13 +103,14 @@ async function initializeMap() {
   });
   map.attributionControl.setPrefix(false);
 
-  let bounds = null;
+  let boundary = null;
   try {
-    bounds = await loadBoundary(map);
+    boundary = await loadBoundary(map);
   } catch (error) {
     console.warn(error);
   }
 
+  const bounds = boundary?.bounds ?? null;
   fitCity(map, bounds);
   if (bounds) map.setMaxBounds(bounds.pad(2));
 
@@ -130,11 +131,16 @@ async function initializeMap() {
   addStreetMap(map, bounds);
   if (bounds) {
     try {
-      const [{ initializeReportForm }, { initializeReportDirectory }] = await Promise.all([
-        import('./report-form.js'),
-        import('./report-directory.js'),
+      const [{ initializeReportForm }, { initializeReportDirectory }, { initializeReportAddress }] = await Promise.all([
+        import('./report-form.js?v=vecinos-2'),
+        import('./report-directory.js?v=vecinos-2'),
+        import('./report-address.js?v=vecinos-2'),
       ]);
-      initializeReportForm(map, L);
+      const reportForm = initializeReportForm(map, L, boundary.geojson);
+      if (reportForm) {
+        initializeReportAddress(reportForm);
+        map.on('contextmenu', ({ latlng }) => reportForm.openAt(latlng));
+      }
       initializeReportDirectory(map, L);
     } catch (error) {
       console.warn('No se pudieron iniciar las funciones de reclamos.', error);

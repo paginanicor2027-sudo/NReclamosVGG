@@ -1,10 +1,28 @@
-import { reportsConfig } from './reports-config.js';
+import { reportsConfig } from './reports-config.js?v=vecinos-2';
 
 export const reportCategories = Object.freeze({
-  baches: 'Baches',
-  luminarias: 'Luminarias',
+  baches: 'Calles y baches',
+  luminarias: 'Alumbrado público',
   residuos: 'Residuos',
-  desagues: 'Desagües',
+  desagues: 'Desagües y anegamientos',
+  ...(reportsConfig.extendedIntake === true ? {
+    agua: 'Agua',
+    arbolado: 'Arbolado',
+    cloacas: 'Cloacas',
+    cableado: 'Postes y cableado',
+    comercios: 'Comercios e industrias',
+    ambiente: 'Contaminación',
+    educacion: 'Educación',
+    gas: 'Gas',
+    electricidad: 'Electricidad',
+    espacios_publicos: 'Parques y plazas',
+    plagas: 'Plagas y vectores',
+    salud: 'Salud',
+    seguridad: 'Seguridad',
+    tramites: 'Trámites municipales',
+    transito: 'Tránsito y transporte',
+    veredas: 'Veredas',
+  } : {}),
   otros: 'Otros',
 });
 

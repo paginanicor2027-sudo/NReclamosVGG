@@ -1,41 +1,146 @@
-import { reportsConfig } from './reports-config.js';
-import { formatReportDate, publicStatuses, reportCategories, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js';
+import { reportsConfig } from './reports-config.js?v=vecinos-2';
+import { formatReportDate, publicStatuses, reportCategories, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=vecinos-2';
+
+const publicIdPattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 
 function addOptions(select, defaultLabel, labels, values) {
   select.add(new Option(defaultLabel, ''));
   for (const value of values) select.add(new Option(labels[value], value));
 }
 
-function markerPopup(report) {
+function appendText(parent, tag, text, className = '') {
+  const element = document.createElement(tag);
+  element.className = className;
+  element.textContent = text;
+  parent.append(element);
+}
+
+function markerPopup(report, endpoint) {
   const popup = document.createElement('div');
   popup.className = 'report-popup';
-  const category = document.createElement('strong');
-  category.textContent = reportCategories[report.category];
-  const description = document.createElement('p');
-  description.textContent = report.description;
-  const state = document.createElement('p');
-  state.textContent = reportStatuses[report.status];
-  const date = document.createElement('small');
-  date.textContent = `Última actualización ${formatReportDate(report.updatedAt)}`;
-  popup.append(category, description, state, date);
+
+  appendText(popup, 'strong', reportCategories[report.category]);
+  appendText(popup, 'p', report.description);
+  if (report.locationLabel) appendText(popup, 'p', report.locationLabel);
+  appendText(popup, 'p', reportStatuses[report.status]);
+  if (report.previouslyReported === true) appendText(popup, 'p', 'Informado previamente por otro canal');
+  const date = formatReportDate(report.updatedAt);
+  if (date) appendText(popup, 'small', `Última actualización ${date}`);
+
+  if (publicIdPattern.test(report.photoId ?? '')) {
+    const url = new URL('/api/reclamos-foto', endpoint);
+    url.searchParams.set('id', report.photoId);
+    const image = document.createElement('img');
+    image.className = 'report-popup-photo';
+    image.alt = 'Foto adjunta al reclamo';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    image.crossOrigin = 'anonymous';
+    image.referrerPolicy = 'no-referrer';
+    image.addEventListener('error', () => image.remove(), { once: true });
+    image.src = url.href;
+    popup.append(image);
+  }
+
+  if (publicIdPattern.test(report.publicId ?? '')) {
+    const shared = new URL(window.location.pathname, window.location.origin);
+    shared.searchParams.set('reclamo', report.publicId);
+    const whatsapp = new URL('https://wa.me/');
+    whatsapp.searchParams.set('text', `ReclamosVGG · ${reportCategories[report.category]}\n${shared.href}`);
+    const link = document.createElement('a');
+    link.className = 'report-popup-share';
+    link.href = whatsapp.href;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'Compartir por WhatsApp';
+    popup.append(link);
+  }
   return popup;
+}
+
+function normalizeSearch(value) {
+  return value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('es-AR');
+}
+
+function countReports(count) {
+  return `${count} ${count === 1 ? 'reclamo' : 'reclamos'}`;
 }
 
 function initializeMapReports(endpoint, map, leaflet) {
   const category = document.getElementById('public-category');
   const state = document.getElementById('public-status');
   const message = document.getElementById('directory-status');
+  const toggle = document.getElementById('directory-view-toggle');
+  const retry = document.getElementById('directory-retry');
+  const panel = document.getElementById('directory-list-panel');
+  const search = document.getElementById('directory-search');
+  const listMessage = document.getElementById('directory-list-status');
+  const list = document.getElementById('directory-list');
   addOptions(category, 'Todas las categorías', reportCategories, Object.keys(reportCategories));
   addOptions(state, 'Todos los estados', reportStatuses, publicStatuses);
 
   const markers = leaflet.layerGroup().addTo(map);
+  const requestedId = new URLSearchParams(window.location.search).get('reclamo');
+  let sharedId = publicIdPattern.test(requestedId ?? '') ? requestedId.toLowerCase() : null;
   let currentLoad;
+  let entries = [];
+  let loading = false;
+  let failed = false;
+
+  function showList(visible) {
+    panel.hidden = !visible;
+    toggle.setAttribute('aria-expanded', String(visible));
+    toggle.textContent = visible ? 'Ver mapa' : 'Ver lista';
+    renderList();
+  }
+
+  function openReport(marker, focus = false) {
+    showList(false);
+    map.setView(marker.getLatLng(), Math.max(16, map.getZoom()), { animate: false });
+    if (focus) marker.getElement()?.focus({ preventScroll: true });
+    marker.openPopup();
+  }
+
+  function renderList() {
+    if (panel.hidden) return;
+    list.replaceChildren();
+    if (loading || failed) {
+      listMessage.textContent = loading ? 'Cargando la lista…' : 'La lista no está disponible.';
+      return;
+    }
+
+    const words = normalizeSearch(search.value.trim()).split(/\s+/).filter(Boolean);
+    const matches = entries.filter(({ searchable }) => words.every((word) => searchable.includes(word)));
+    if (matches.length > 0) listMessage.textContent = countReports(matches.length);
+    else listMessage.textContent = words.length > 0 ? 'No encontramos reclamos con esa búsqueda.' : 'Sin reclamos para mostrar.';
+    const rows = document.createDocumentFragment();
+    for (const { report, marker } of matches) {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.className = 'directory-list-button';
+      button.type = 'button';
+      appendText(button, 'strong', reportCategories[report.category], 'directory-list-title');
+      appendText(button, 'span', report.description, 'directory-list-description');
+      appendText(button, 'span', [report.locationLabel, reportStatuses[report.status], formatReportDate(report.updatedAt)]
+        .filter(Boolean).join(' · '), 'directory-list-meta');
+      button.addEventListener('click', () => openReport(marker, true));
+      item.append(button);
+      rows.append(item);
+    }
+    list.append(rows);
+  }
+
   async function loadReports() {
     currentLoad?.abort();
     const load = new AbortController();
     currentLoad = load;
+    entries = [];
+    loading = true;
+    failed = false;
     message.textContent = 'Cargando reclamos…';
+    retry.hidden = true;
     markers.clearLayers();
+    renderList();
     const url = new URL(endpoint);
     if (category.value) url.searchParams.set('category', category.value);
     if (state.value) url.searchParams.set('status', state.value);
@@ -61,28 +166,49 @@ function initializeMapReports(endpoint, map, leaflet) {
       }
 
       if (currentLoad !== load) return;
-      let count = 0;
       for (const report of reports) {
-        if (!Object.hasOwn(reportCategories, report.category) || !publicStatuses.includes(report.status) ||
-          !Number.isFinite(report.latitude) || !Number.isFinite(report.longitude)) continue;
+        if (!report || !Object.hasOwn(reportCategories, report.category) || !publicStatuses.includes(report.status) ||
+          !Number.isFinite(report.latitude) || !Number.isFinite(report.longitude) || typeof report.description !== 'string') continue;
         const label = `${reportCategories[report.category]} · ${reportStatuses[report.status]}`;
         const icon = leaflet.divIcon({
           className: `report-pin report-pin--${report.status}`,
           iconSize: [20, 20],
         });
-        leaflet.marker([report.latitude, report.longitude], { icon, title: label })
-          .bindPopup(markerPopup(report)).addTo(markers);
-        count++;
+        const marker = leaflet.marker([report.latitude, report.longitude], { icon, title: label })
+          .bindPopup(() => markerPopup(report, endpoint)).addTo(markers);
+        const searchable = normalizeSearch([reportCategories[report.category], report.description, report.locationLabel]
+          .filter(Boolean).join(' '));
+        entries.push({ report, marker, searchable });
       }
-      message.textContent = count === 0 ? 'Sin reclamos para mostrar.' :
-        `${count} ${count === 1 ? 'reclamo visible' : 'reclamos visibles'}`;
+      message.textContent = entries.length === 0 ? 'Sin reclamos para mostrar.' : `${countReports(entries.length)} en el mapa`;
+      if (sharedId) {
+        const match = entries.find(({ report }) => typeof report.publicId === 'string' && report.publicId.toLowerCase() === sharedId);
+        sharedId = null;
+        if (match) openReport(match.marker);
+        else message.textContent = 'Ese reclamo ya no está disponible en el mapa.';
+      }
     } catch {
-      if (currentLoad === load) message.textContent = 'No se pudieron cargar los reclamos. Volvé a intentar.';
+      if (currentLoad !== load) return;
+      failed = true;
+      message.textContent = 'No pudimos cargar los reclamos.';
+      retry.hidden = false;
+    } finally {
+      if (currentLoad === load) {
+        loading = false;
+        renderList();
+      }
     }
   }
 
-  category.addEventListener('change', loadReports);
-  state.addEventListener('change', loadReports);
+  for (const select of [category, state]) {
+    select.addEventListener('change', () => {
+      sharedId = null;
+      loadReports();
+    });
+  }
+  toggle.addEventListener('click', () => showList(panel.hidden));
+  search.addEventListener('input', renderList);
+  retry.addEventListener('click', loadReports);
   loadReports();
 }
 

@@ -1,13 +1,22 @@
 import type {
-  Category,
   PublishedReport,
   ReportDirectoryStore,
   TrackedReport,
   TrackingStatus,
 } from "../supabase/functions/report-directory/handler.ts";
-import type { ReportStore } from "../supabase/functions/submit-report/handler.ts";
+import { isCategory } from "../supabase/functions/_shared/report-category.ts";
+import type { ReportSubmission, StoredReport } from "../supabase/functions/submit-report/handler.ts";
+import type { ReportDetails } from "./report-details.ts";
 
 const pageSize = 100;
+const publicStatusesSql = "status in ('published', 'in_progress', 'resolved')";
+const displayCategory = "coalesce(specific_category, category)";
+const publicColumns = `
+  request_id as publicId, ${displayCategory} as category, description, latitude, longitude,
+  status, updated_at as updatedAt,
+  location_label as locationLabel, previously_reported as previouslyReported,
+  case when photo_base64 is not null then request_id end as photoId
+`;
 type QueryValue = string | number | null;
 
 interface ReportsStatement {
@@ -23,20 +32,41 @@ export interface ReportsDatabase {
 interface ModerationReport {
   request_id: string;
   tracking_number: string;
-  category: Category;
+  category: string;
   description: string;
   latitude: number;
   longitude: number;
   status: TrackingStatus;
   created_at: string;
   updated_at: string;
+  location_label: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  previously_reported: boolean;
+  has_photo: boolean;
 }
 
 type SubmissionRow = Pick<
   ModerationReport,
-  "tracking_number" | "category" | "description" | "latitude" | "longitude"
->;
+  "tracking_number" | "category" | "description" | "latitude" | "longitude" |
+    "location_label" | "contact_name" | "contact_email" | "contact_phone"
+> & { previously_reported: number; photo_base64: string | null };
+type ModerationRow = Omit<ModerationReport, "previously_reported" | "has_photo"> & {
+  previously_reported: number;
+  has_photo: number;
+};
+interface PublicRow extends PublishedReport {
+  publicId: string;
+  locationLabel: string | null;
+  photoId: string | null;
+  previouslyReported: number;
+}
 type StatusUpdate = Pick<ModerationReport, "status" | "updated_at">;
+
+function publishedReport(row: PublicRow) {
+  return { ...row, previouslyReported: row.previouslyReported === 1 };
+}
 
 function newTrackingNumber(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(8));
@@ -45,19 +75,30 @@ function newTrackingNumber(): string {
 }
 
 export function createReportsStore(db: ReportsDatabase) {
-  const submit: ReportStore = async (report) => {
+  async function submit(report: ReportSubmission, details: ReportDetails): Promise<StoredReport> {
+    const specificCategory = isCategory(report.category) ? null : report.category;
     const inserted = await db.prepare(`
-      insert into reports (request_id, tracking_number, category, description, latitude, longitude)
-      values (?, ?, ?, ?, ?, ?)
+      insert into reports (
+        request_id, tracking_number, category, specific_category, description, latitude, longitude,
+        location_label, contact_name, contact_email, contact_phone, previously_reported, photo_base64
+      )
+      values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       on conflict (request_id) do nothing
       returning tracking_number
     `).bind(
       report.requestId,
       newTrackingNumber(),
-      report.category,
+      specificCategory === null ? report.category : "otros",
+      specificCategory,
       report.description,
       report.latitude,
       report.longitude,
+      details.locationLabel,
+      details.contactName,
+      details.contactEmail,
+      details.contactPhone,
+      Number(details.previouslyReported),
+      details.photo,
     ).first<Pick<SubmissionRow, "tracking_number">>();
 
     if (inserted) {
@@ -65,7 +106,8 @@ export function createReportsStore(db: ReportsDatabase) {
     }
 
     const existing = await db.prepare(`
-      select tracking_number, category, description, latitude, longitude
+      select tracking_number, ${displayCategory} as category, description, latitude, longitude,
+             location_label, contact_name, contact_email, contact_phone, previously_reported, photo_base64
       from reports where request_id = ?
     `).bind(report.requestId).first<SubmissionRow>();
 
@@ -76,13 +118,19 @@ export function createReportsStore(db: ReportsDatabase) {
       existing.category !== report.category ||
       existing.description !== report.description ||
       existing.latitude !== report.latitude ||
-      existing.longitude !== report.longitude
+      existing.longitude !== report.longitude ||
+      existing.location_label !== details.locationLabel ||
+      existing.contact_name !== details.contactName ||
+      existing.contact_email !== details.contactEmail ||
+      existing.contact_phone !== details.contactPhone ||
+      existing.previously_reported !== Number(details.previouslyReported) ||
+      existing.photo_base64 !== details.photo
     ) {
       return { code: "request_conflict" };
     }
 
     return { trackingNumber: existing.tracking_number, status: "pending_review", created: false };
-  };
+  }
 
   const directory: ReportDirectoryStore = {
     async list({ category, status, offset }) {
@@ -90,10 +138,10 @@ export function createReportsStore(db: ReportsDatabase) {
       const source = category === null && status === null
         ? "reports indexed by reports_public_order_idx"
         : "reports";
-      const filters = ["status in ('published', 'in_progress', 'resolved')"];
+      const filters = [publicStatusesSql];
       const values: QueryValue[] = [];
       if (category !== null) {
-        filters.push("category = ?");
+        filters.push(`${displayCategory} = ?`);
         values.push(category);
       }
       if (status !== null) {
@@ -102,15 +150,15 @@ export function createReportsStore(db: ReportsDatabase) {
       }
 
       const { results } = await db.prepare(`
-        select category, description, latitude, longitude, status, updated_at as updatedAt
+        select ${publicColumns}
         from ${source}
         where ${filters.join(" and ")}
         order by created_at desc, request_id desc
         limit ${pageSize + 1} offset ?
-      `).bind(...values, offset).all<PublishedReport>();
+      `).bind(...values, offset).all<PublicRow>();
 
       return {
-        reports: results.slice(0, pageSize),
+        reports: results.slice(0, pageSize).map(publishedReport),
         nextOffset: results.length > pageSize ? offset + pageSize : null,
       };
     },
@@ -124,20 +172,41 @@ export function createReportsStore(db: ReportsDatabase) {
     },
   };
 
+  async function getPublishedReport(requestId: string) {
+    const row = await db.prepare(`
+      select ${publicColumns}
+      from reports where request_id = ? and ${publicStatusesSql}
+    `).bind(requestId).first<PublicRow>();
+    return row ? publishedReport(row) : null;
+  }
+
+  async function getReportPhoto(requestId: string, moderator: boolean) {
+    const access = moderator ? "" : `and ${publicStatusesSql}`;
+    const row = await db.prepare(`
+      select photo_base64 from reports where request_id = ? ${access}
+    `).bind(requestId).first<{ photo_base64: string | null }>();
+    return row?.photo_base64 ?? null;
+  }
+
   async function listForModeration(
     { status, offset }: { status: string | null; offset: number },
   ): Promise<ModerationReport[]> {
     const filter = status === null ? "" : "where status = ?";
     const values = status === null ? [offset] : [status, offset];
     const { results } = await db.prepare(`
-      select request_id, tracking_number, category, description, latitude, longitude,
-             status, created_at, updated_at
+      select request_id, tracking_number, ${displayCategory} as category, description, latitude, longitude,
+             status, created_at, updated_at, location_label, contact_name, contact_email, contact_phone,
+             previously_reported, photo_base64 is not null as has_photo
       from reports
       ${filter}
       order by created_at desc, request_id desc
       limit ${pageSize} offset ?
-    `).bind(...values).all<ModerationReport>();
-    return results;
+    `).bind(...values).all<ModerationRow>();
+    return results.map((row) => ({
+      ...row,
+      previously_reported: row.previously_reported === 1,
+      has_photo: row.has_photo === 1,
+    }));
   }
 
   async function updateStatus(
@@ -162,5 +231,5 @@ export function createReportsStore(db: ReportsDatabase) {
     }
   }
 
-  return { submit, directory, listForModeration, updateStatus };
+  return { submit, directory, getPublishedReport, getReportPhoto, listForModeration, updateStatus };
 }

@@ -1,5 +1,5 @@
-import { reportsConfig } from './reports-config.js';
-import { formatReportDate, publicStatuses, reportCategories, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js';
+import { reportsConfig } from './reports-config.js?v=vecinos-2';
+import { formatReportDate, publicStatuses, reportCategories, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=vecinos-2';
 
 const pageSize = 100;
 const reportColumns = 'request_id,tracking_number,category,description,latitude,longitude,status,created_at,updated_at';
@@ -43,9 +43,10 @@ function getServiceUrl() {
   }
 }
 
-async function request(path, { token, signal, body, prefer, method = 'GET' } = {}) {
+async function request(path, { token, signal, body, prefer, method = 'GET', photo = false } = {}) {
   const headers = reportHeaders();
   if (usesAccessKey) delete headers.apikey;
+  if (photo) headers.Accept = 'image/jpeg';
   if (token) headers.Authorization = `Bearer ${token}`;
   if (body) headers['Content-Type'] = 'application/json';
   if (prefer) headers.Prefer = prefer;
@@ -61,7 +62,10 @@ async function request(path, { token, signal, body, prefer, method = 'GET' } = {
       redirect: 'error',
       signal: signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal,
     });
-    return { status: response.status, ok: response.ok, data: await response.json().catch(() => null) };
+    const data = photo
+      ? response.ok && response.headers.get('content-type') === 'image/jpeg' && await response.blob()
+      : await response.json().catch(() => null);
+    return { status: response.status, ok: response.ok, data };
   } catch {
     return { status: 0, ok: false, data: null };
   }
@@ -220,6 +224,46 @@ function reportActions(status) {
   return publicStatuses.includes(status) ? publicStatuses.filter(choice => choice !== status) : [];
 }
 
+function renderReportPhoto(report, field) {
+  const button = field('photo-button');
+  const image = field('photo');
+  const message = field('photo-message');
+  button.hidden = !usesAccessKey || report.has_photo !== true;
+  if (button.hidden) return;
+
+  button.addEventListener('click', async () => {
+    const active = getSession();
+    if (!active) return;
+    button.disabled = true;
+    setMessage(message, 'Cargando la foto…');
+    const id = new URLSearchParams({ id: report.request_id });
+    const response = await request(`/api/reclamos-foto?${id}`, {
+      photo: true,
+      token: active.token,
+      signal: active.controller.signal,
+    });
+    if (getSession() !== active || !button.isConnected || sessionRejected(response)) return;
+    if (!(response.data instanceof Blob)) {
+      button.disabled = false;
+      setMessage(message, 'No pudimos abrir la foto. Volvé a intentar.', true);
+      return;
+    }
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      if (getSession() !== active || !button.isConnected) return;
+      image.src = reader.result;
+      image.hidden = false;
+      button.hidden = true;
+      setMessage(message, 'Revisá que la foto no muestre datos personales antes de publicar.');
+    });
+    reader.addEventListener('error', () => {
+      button.disabled = false;
+      setMessage(message, 'No pudimos abrir la foto. Volvé a intentar.', true);
+    });
+    reader.readAsDataURL(response.data);
+  });
+}
+
 function renderReport(report) {
   const card = reportTemplate.content.firstElementChild.cloneNode(true);
   const field = name => card.querySelector(`[data-${name}]`);
@@ -227,11 +271,16 @@ function renderReport(report) {
   field('tracking').textContent = tracking;
   field('category').textContent = Object.hasOwn(reportCategories, report.category) ? reportCategories[report.category] : 'Reclamo';
   field('description').textContent = report.description ?? '';
-  field('location').textContent = formatCoordinates(report);
+  field('location').textContent = [report.location_label, formatCoordinates(report)].filter(Boolean).join(' · ');
+  field('previous').hidden = report.previously_reported !== true;
+  const contact = [report.contact_name, report.contact_email, report.contact_phone].filter(Boolean);
+  field('contact').textContent = contact.join(' · ');
+  field('private-contact').hidden = contact.length === 0;
   field('created').textContent = formatReportDate(report.created_at) || '—';
   field('updated').textContent = formatReportDate(report.updated_at) || '—';
   field('status').textContent = Object.hasOwn(reportStatuses, report.status) ? reportStatuses[report.status] : 'Sin estado';
   field('status').dataset.status = report.status;
+  renderReportPhoto(report, field);
 
   const form = field('transition');
   const choices = reportActions(report.status);

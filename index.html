@@ -9,10 +9,10 @@
     <title>ReclamosVGG · Villa Gobernador Gálvez</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="./styles.css?v=20261122">
+    <link rel="stylesheet" href="./styles.css?v=vecinos-2">
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-    <script defer src="./app.js?v=20261122"></script>
+    <script defer src="./app.js?v=vecinos-2"></script>
   </head>
   <body>
     <header class="site-header">
@@ -43,10 +43,24 @@
                 <select id="public-status"></select>
               </div>
             </details>
+            <button id="directory-view-toggle" class="directory-track-button" type="button"
+              aria-expanded="false" aria-controls="directory-list-panel">Ver lista</button>
             <button id="tracking-trigger" class="directory-track-button" type="button">Consultar seguimiento</button>
           </div>
           <p id="directory-status" class="directory-status" role="status"></p>
+          <button id="directory-retry" class="directory-track-button directory-retry" type="button" hidden>Reintentar</button>
+          <section id="directory-list-panel" class="directory-list-panel" aria-label="Lista de reclamos publicados" hidden>
+            <label class="directory-search-label" for="directory-search">Buscar reclamos publicados</label>
+            <input id="directory-search" class="directory-search" type="search" maxlength="100"
+              placeholder="Ej. luminaria, calle o barrio">
+            <p id="directory-list-status" class="directory-status" role="status"></p>
+            <ul id="directory-list" class="directory-list"></ul>
+          </section>
         </div>
+        <nav class="city-links" aria-label="Información sobre los reclamos">
+          <a href="./privacidad.html">Cómo funciona y privacidad</a>
+          <a href="https://vggmunicipalidad.gov.ar/tramite/128/reclamos/" target="_blank" rel="noopener noreferrer">Canales municipales</a>
+        </nav>
       </div>
 
       <div class="map-controls" role="group" aria-label="Controles del mapa">
@@ -76,6 +90,7 @@
         <p id="report-location-status" class="report-feedback" role="status"></p>
         <div class="report-location-actions">
           <button id="report-use-center" class="report-button report-secondary" type="button">Usar el centro del mapa</button>
+          <button id="report-use-gps" class="report-button report-secondary" type="button" hidden>Usar mi ubicación</button>
           <button id="report-continue" class="report-button" type="button" disabled>Continuar</button>
           <button id="report-cancel-location" class="report-button report-text-button" type="button">Cancelar</button>
         </div>
@@ -84,7 +99,7 @@
       <noscript><p class="map-status">Activá JavaScript para ver el mapa.</p></noscript>
     </main>
 
-    <dialog id="report-dialog" class="report-dialog" aria-labelledby="report-dialog-title">
+    <dialog id="report-dialog" class="report-dialog report-wizard" aria-labelledby="report-dialog-title">
       <div class="report-dialog-body">
         <header class="report-dialog-header">
           <h2 id="report-dialog-title" tabindex="-1">Hacer un reclamo</h2>
@@ -92,34 +107,116 @@
         </header>
 
         <form id="report-form" novalidate>
-          <div class="report-location-summary">
-            <span>Ubicación marcada en el mapa</span>
-            <button id="report-change-location" class="report-button report-text-button" type="button">Cambiar ubicación</button>
+          <div class="report-wizard-progress">
+            <span id="report-step-label"></span>
+            <progress id="report-step-progress" max="4" value="1" aria-label="Progreso del reclamo"></progress>
           </div>
-          <p id="report-privacy" class="report-help">El envío es anónimo. Si se aprueba, la descripción y el punto se muestran en el mapa. Evitá incluir nombres, teléfonos u otros datos personales.</p>
-          <div class="report-fields">
-            <label for="report-category">Categoría</label>
-            <select id="report-category" name="category" required>
-              <option value="" disabled selected>Elegí una categoría</option>
-              <option value="baches">Baches</option>
-              <option value="luminarias">Luminarias</option>
-              <option value="residuos">Residuos</option>
-              <option value="desagues">Desagües</option>
-              <option value="otros">Otros</option>
-            </select>
-            <label for="report-description">Descripción breve</label>
-            <textarea id="report-description" name="description" rows="4" required aria-describedby="report-description-count report-privacy"></textarea>
-            <p id="report-description-count" class="report-help report-count">0 de 400 caracteres</p>
+          <div id="report-draft-restored" class="report-wizard-note" hidden>
+            <p id="report-draft-note" role="status">Recuperamos tu borrador. Podés volver a agregar la foto y tus datos de contacto.</p>
+            <button id="report-discard-draft" class="report-button report-text-button" type="button">Descartar borrador</button>
           </div>
+
+          <section id="report-step-photo" class="report-step" aria-labelledby="report-photo-title" hidden>
+            <h3 id="report-photo-title" tabindex="-1">Agregá una foto</h3>
+            <p id="report-photo-help" class="report-help">Es opcional. Elegí una imagen JPG, PNG o WebP. Evitá incluir caras, patentes o datos personales.</p>
+            <div class="report-fields">
+              <label for="report-photo">Foto del lugar</label>
+              <input id="report-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="report-photo-help report-photo-status">
+              <p id="report-photo-status" class="report-help" role="status"></p>
+            </div>
+            <figure id="report-photo-preview" class="report-photo-preview" hidden>
+              <img id="report-photo-image" alt="Vista previa de la foto adjunta">
+              <figcaption><button id="report-remove-photo" class="report-button report-text-button" type="button">Quitar foto</button></figcaption>
+            </figure>
+          </section>
+
+          <section id="report-step-details" class="report-step" aria-labelledby="report-details-title" hidden>
+            <h3 id="report-details-title" tabindex="-1">Contanos qué pasó</h3>
+            <p id="report-privacy" class="report-help">La descripción se muestra si el reclamo se aprueba. Evitá incluir datos personales en este campo.</p>
+            <div class="report-fields">
+              <label for="report-category">Categoría</label>
+              <select id="report-category" name="category" required>
+                <option value="" disabled selected>Elegí una categoría</option>
+              </select>
+              <label for="report-description">Descripción breve</label>
+              <textarea id="report-description" name="description" rows="4" required aria-describedby="report-description-count report-privacy"></textarea>
+              <p id="report-description-count" class="report-help report-count">0 de 400 caracteres</p>
+            </div>
+            <label class="report-checkbox" data-intake-extra>
+              <input id="report-previously-reported" type="checkbox" name="previouslyReported">
+              Ya hice un reclamo por este problema
+            </label>
+          </section>
+
+          <section id="report-step-location" class="report-step" aria-labelledby="report-where-title" hidden>
+            <h3 id="report-where-title" tabindex="-1">Indicá dónde ocurre</h3>
+            <p class="report-help">Marcá un punto dentro de Villa Gobernador Gálvez. Si se aprueba, el punto y la referencia se muestran en el mapa.</p>
+            <div class="report-fields" data-intake-extra>
+              <label for="report-address-query">Buscá una dirección o esquina</label>
+              <div class="report-address-controls">
+                <input id="report-address-query" type="search" maxlength="120" placeholder="Ej. Balcarce 1734" aria-describedby="report-address-help">
+                <button id="report-address-search" class="report-button report-secondary" type="button">Buscar</button>
+              </div>
+              <p id="report-address-help" class="report-help">Al buscar, la dirección se consulta en el <a href="https://www.argentina.gob.ar/georef" target="_blank" rel="noopener noreferrer">Servicio Georef</a>.</p>
+              <p id="report-address-status" class="report-feedback" role="status"></p>
+              <ul id="report-address-results" class="report-address-results" aria-label="Direcciones encontradas" hidden></ul>
+            </div>
+            <div class="report-location-summary">
+              <span id="report-point-summary">Todavía no elegiste un punto.</span>
+              <div class="report-point-actions">
+                <button id="report-use-gps-in-form" class="report-button report-secondary" type="button" hidden>Usar mi ubicación</button>
+                <button id="report-change-location" class="report-button report-secondary" type="button">Marcar en el mapa</button>
+              </div>
+            </div>
+            <p id="report-gps-status" class="report-feedback" role="status"></p>
+            <div class="report-fields" data-intake-extra>
+              <label for="report-location-label">Calle o esquina (opcional)</label>
+              <input id="report-location-label" name="locationLabel" type="text" maxlength="120" placeholder="Ej. frente a la plaza San Martín">
+            </div>
+          </section>
+
+          <section id="report-step-review" class="report-step" aria-labelledby="report-review-title" hidden>
+            <h3 id="report-review-title" tabindex="-1">Revisá tu reclamo</h3>
+            <dl class="report-review">
+              <dt>Categoría</dt><dd id="report-review-category"></dd>
+              <dt>Descripción</dt><dd id="report-review-description"></dd>
+              <dt>Ubicación</dt><dd id="report-review-location"></dd>
+              <dt data-intake-extra>Foto</dt><dd id="report-review-photo" data-intake-extra></dd>
+              <dt data-intake-extra>Reclamo anterior</dt><dd id="report-review-previous" data-intake-extra></dd>
+            </dl>
+            <div class="report-private-fields" data-intake-extra>
+              <label class="report-checkbox">
+                <input id="report-contact-opt-in" type="checkbox" aria-controls="report-contact-fields" aria-describedby="report-contact-help">
+                Quiero dejar un medio de contacto (opcional)
+              </label>
+              <p id="report-contact-help" class="report-help">Solo el equipo de moderación puede ver estos datos. Podés consultar el estado con tu código de seguimiento. <a href="./privacidad.html" target="_blank" rel="noopener">Privacidad</a></p>
+              <div id="report-contact-fields" class="report-fields" hidden>
+                <label for="report-contact-name">Nombre (opcional)</label>
+                <input id="report-contact-name" name="contactName" type="text" autocomplete="name" maxlength="80">
+                <label for="report-contact-email">Correo electrónico</label>
+                <input id="report-contact-email" name="contactEmail" type="email" autocomplete="email" maxlength="254">
+                <label for="report-contact-phone">Teléfono o WhatsApp</label>
+                <input id="report-contact-phone" name="contactPhone" type="tel" autocomplete="tel" maxlength="32">
+              </div>
+            </div>
+          </section>
+
           <p id="report-error" class="report-feedback report-error" role="alert"></p>
           <p id="report-sending" class="report-feedback" role="status"></p>
-          <button id="report-submit" class="report-button" type="submit">Enviar reclamo</button>
+          <div class="report-wizard-actions">
+            <button id="report-back" class="report-button report-secondary" type="button" hidden>Atrás</button>
+            <button id="report-submit" class="report-button" type="submit">Siguiente</button>
+          </div>
         </form>
 
         <div id="report-confirmation" hidden>
           <p>El reclamo quedó pendiente de revisión. Guardá este código de seguimiento.</p>
           <p id="report-tracking-code" class="report-tracking-code"></p>
-          <button id="report-new" class="report-button" type="button">Hacer otro reclamo</button>
+          <div class="report-confirmation-actions">
+            <button id="report-copy-code" class="report-button" type="button" hidden>Copiar código</button>
+            <button id="report-new" class="report-button report-secondary" type="button">Hacer otro reclamo</button>
+          </div>
+          <p id="report-copy-status" class="report-feedback" role="status"></p>
         </div>
       </div>
     </dialog>

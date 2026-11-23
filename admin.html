@@ -7,9 +7,9 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="no-referrer">
     <title>Moderación de reclamos · ReclamosVGG</title>
-    <link rel="stylesheet" href="./styles.css?v=20261122">
-    <link rel="stylesheet" href="./admin.css">
-    <script type="module" src="./admin.js"></script>
+    <link rel="stylesheet" href="./styles.css?v=vecinos-2">
+    <link rel="stylesheet" href="./admin.css?v=vecinos-2">
+    <script type="module" src="./admin.js?v=vecinos-2"></script>
   </head>
   <body class="moderation-page">
     <header class="site-header moderation-header">
@@ -74,11 +74,16 @@
           <span class="moderation-status" data-status></span>
         </header>
         <p class="moderation-description" data-description></p>
+        <p class="moderation-feedback" data-previous hidden>La persona indicó que ya había hecho un reclamo por este problema.</p>
         <dl class="moderation-metadata">
           <div><dt>Ubicación</dt><dd data-location></dd></div>
           <div><dt>Recibido</dt><dd data-created></dd></div>
           <div><dt>Actualizado</dt><dd data-updated></dd></div>
+          <div class="moderation-contact" data-private-contact hidden><dt>Contacto privado</dt><dd data-contact></dd></div>
         </dl>
+        <button class="moderation-button moderation-secondary" type="button" data-photo-button hidden>Revisar foto adjunta</button>
+        <img class="moderation-photo" alt="Foto adjunta al reclamo" data-photo hidden>
+        <p class="moderation-feedback" data-photo-message role="status"></p>
         <form class="moderation-transition" data-transition>
           <label>
             Nuevo estado

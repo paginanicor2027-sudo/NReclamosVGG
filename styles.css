@@ -103,6 +103,15 @@ body {
 
 .city-province { margin: 0 0 4px; color: var(--quiet); font-size: .78rem; font-weight: 600; }
 .city-card h1 { margin: 0; font-size: clamp(1.18rem, 2.4vw, 1.65rem); line-height: 1.15; letter-spacing: -.033em; }
+.city-links { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px; font-size: .78rem; pointer-events: auto; }
+.city-links a, .civic-info a { color: var(--teal); text-underline-offset: 2px; }
+.civic-info { width: min(760px, calc(100% - 36px)); margin: 30px auto; padding: clamp(18px, 4vw, 34px); border: 1px solid var(--edge); background: var(--paper); border-radius: 14px; line-height: 1.55; }
+.civic-info h1 { line-height: 1.16; }
+.civic-info h2 { margin-top: 1.5em; font-size: 1.17rem; }
+.report-address-controls { display: flex; align-items: stretch; gap: 7px; }
+.report-address-controls input { flex: 1; min-width: 0; width: 100%; }
+.report-address-results { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.report-address-results button { width: 100%; text-align: left; }
 
 .report-directory { margin-top: 8px; pointer-events: auto; }
 .directory-actions { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 4px 8px; }
@@ -123,6 +132,7 @@ body {
 .directory-filters > summary:focus-visible, .directory-track-button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 .directory-filter-fields { display: grid; gap: 5px; margin-top: 9px; font-size: .8rem; }
 .directory-filter-fields label { font-weight: 650; }
+.directory-filter-fields select { min-width: 0; }
 .directory-filter-fields select, #tracking-input {
   min-height: 36px;
   padding: 6px 8px;
@@ -147,6 +157,68 @@ body {
 .report-popup { min-width: 155px; overflow-wrap: anywhere; }
 .report-popup p { margin: 5px 0; }
 .report-popup small { color: var(--quiet); }
+.report-popup-photo {
+  display: block;
+  width: 100%;
+  max-width: 270px;
+  height: clamp(82px, 18vh, 150px);
+  margin-top: 8px;
+  border-radius: 7px;
+  background: #f2f7f8;
+  object-fit: contain;
+}
+.report-popup-share { display: inline-block; margin-top: 8px; font-weight: 650; }
+.directory-retry { margin-top: 5px; }
+.directory-list-panel {
+  display: grid;
+  width: min(355px, 100%);
+  max-height: min(43dvh, 24rem);
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-top: 1px solid var(--edge);
+}
+.directory-search-label { font-size: .82rem; font-weight: 690; }
+.directory-search {
+  width: 100%;
+  min-height: 39px;
+  padding: 7px 9px;
+  border: 1px solid var(--edge);
+  border-radius: 7px;
+  color: var(--ink);
+  font: inherit;
+  font-size: .9rem;
+}
+.directory-list-panel .directory-status { margin-top: 2px; }
+.directory-list { display: grid; gap: 6px; margin: 0; padding: 3px; list-style: none; }
+.directory-list-button {
+  display: grid;
+  width: 100%;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background: #f5f9f8;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.directory-list-button:hover { background: #e1f4ef; }
+.directory-search:focus-visible, .directory-list-button:focus-visible,
+.report-popup-share:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.directory-list-title { font-size: .85rem; }
+.directory-list-description {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: .83rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.directory-list-meta { font-size: .75rem; color: var(--quiet); }
 
 .map-controls {
   position: absolute;
@@ -404,6 +476,53 @@ body {
   overflow-wrap: anywhere;
   user-select: all;
 }
+
+.report-wizard { width: min(100% - 24px, 560px); }
+.report-wizard-progress { display: grid; gap: 6px; color: var(--quiet); font-size: .82rem; font-weight: 700; }
+.report-wizard-progress progress { width: 100%; height: 12px; accent-color: var(--teal); }
+.report-wizard-note { display: grid; justify-items: start; padding: 9px 12px 5px; border-radius: 8px; background: #eef8f6; font-size: .85rem; }
+.report-wizard-note p { margin: 0; }
+.report-wizard-note button { margin-inline-start: -10px; }
+.report-step { display: grid; gap: 12px; padding-block: 6px; }
+.report-step h3 { margin: 0; color: var(--navy); font-size: 1.15rem; }
+.report-step h3:focus { outline: none; }
+.report-step input:not([type="checkbox"]) {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background-color: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+.report-step input[aria-invalid="true"] { border-color: #a62a22; }
+.report-step input:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.report-checkbox { display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: .9rem; font-weight: 650; }
+.report-checkbox input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0; accent-color: var(--teal); }
+.report-private-fields { display: grid; gap: 6px; }
+.report-private-fields .report-fields { margin-block-start: 4px; }
+.report-point-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+#report-gps-status { color: var(--quiet); }
+.report-photo-preview { display: grid; gap: 4px; justify-items: start; margin: 0; }
+.report-photo-preview img { max-width: 100%; max-height: 200px; border-radius: 8px; object-fit: contain; }
+.report-review {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 12px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background: #f5f9f9;
+  font-size: .88rem;
+}
+.report-review dt { font-weight: 700; }
+.report-review dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.report-wizard-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.report-wizard-actions > :first-child:not([hidden]) { margin-inline-end: auto; }
+.report-confirmation-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+#report-copy-status:not(:empty) { margin-block-start: 8px; }
 
 @media (max-width: 660px) {
   .site-header { min-height: 62px; }

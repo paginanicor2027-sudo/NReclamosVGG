@@ -94,11 +94,14 @@ const assetTypes = new Map([
   ['report-client.js', 'text/javascript; charset=utf-8'],
   ['report-directory.js', 'text/javascript; charset=utf-8'],
   ['report-form.js', 'text/javascript; charset=utf-8'],
+  ['report-address.js', 'text/javascript; charset=utf-8'],
+  ['privacidad.html', 'text/html; charset=utf-8'],
   ['reports-config.js', 'text/javascript; charset=utf-8'],
   ['data/villa-gobernador-galvez.geojson', 'application/geo+json'],
 ]);
 
 const previewOptions = workerUrl ? {
+  extendedIntake: true,
   endpoint: new URL('/api/reclamos', workerUrl).href,
   directoryEndpoint: new URL('/api/reclamos-publicados', workerUrl).href,
   moderationUrl: new URL(workerUrl).origin,

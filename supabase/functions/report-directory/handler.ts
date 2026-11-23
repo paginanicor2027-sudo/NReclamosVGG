@@ -1,27 +1,21 @@
 import { readJsonBody } from "../_shared/json-body.ts";
+import { isCategory } from "../_shared/report-category.ts";
 
-const categories = [
-  "baches",
-  "luminarias",
-  "residuos",
-  "desagues",
-  "otros",
-] as const;
+export { isCategory, type Category } from "../_shared/report-category.ts";
 const publicStatuses = ["published", "in_progress", "resolved"] as const;
 const trackingPattern = /^VGG-[0-9A-F]{16}$/i;
 
-export type Category = typeof categories[number];
 export type PublicStatus = typeof publicStatuses[number];
 export type TrackingStatus = PublicStatus | "pending_review" | "rejected";
 
 export interface DirectoryQuery {
-  category: Category | null;
+  category: string | null;
   status: PublicStatus | null;
   offset: number;
 }
 
 export interface PublishedReport {
-  category: Category;
+  category: string;
   description: string;
   latitude: number;
   longitude: number;
@@ -47,13 +41,10 @@ export interface ReportDirectoryStore {
 interface HandlerOptions {
   allowedOrigins: readonly string[];
   store: ReportDirectoryStore;
+  acceptsCategory?: (value: unknown) => value is string;
 }
 
 type ErrorCode = "invalid_request" | "report_not_found" | "service_unavailable";
-
-export function isCategory(value: unknown): value is Category {
-  return categories.some((category) => category === value);
-}
 
 export function isPublicStatus(value: unknown): value is PublicStatus {
   return publicStatuses.some((status) => status === value);
@@ -64,7 +55,10 @@ export function isOffset(value: unknown): value is number {
     value <= 2_147_483_647;
 }
 
-function parseDirectoryQuery(url: string): DirectoryQuery | null {
+function parseDirectoryQuery(
+  url: string,
+  acceptsCategory: (value: unknown) => value is string,
+): DirectoryQuery | null {
   const params = new URL(url).searchParams;
   const categories = params.getAll("category");
   const statuses = params.getAll("status");
@@ -77,7 +71,7 @@ function parseDirectoryQuery(url: string): DirectoryQuery | null {
   const status = statuses[0] ?? null;
   const offsetParam = offsets[0] ?? "0";
   if (
-    (category !== null && !isCategory(category)) ||
+    (category !== null && !acceptsCategory(category)) ||
     (status !== null && !isPublicStatus(status)) ||
     !/^\d{1,10}$/.test(offsetParam)
   ) {
@@ -107,7 +101,7 @@ async function readTrackingNumber(request: Request): Promise<string | null> {
 }
 
 export function createReportDirectoryHandler(
-  { allowedOrigins, store }: HandlerOptions,
+  { allowedOrigins, store, acceptsCategory = isCategory }: HandlerOptions,
 ) {
   const origins = new Set(allowedOrigins);
 
@@ -140,7 +134,7 @@ export function createReportDirectoryHandler(
 
     try {
       if (request.method === "GET") {
-        const query = parseDirectoryQuery(request.url);
+        const query = parseDirectoryQuery(request.url, acceptsCategory);
         if (!query) {
           return error(400, "invalid_request");
         }
