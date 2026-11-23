@@ -9,7 +9,7 @@
     <title>ReclamosVGG · Villa Gobernador Gálvez</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="./styles.css?v=bienvenida-2">
+    <link rel="stylesheet" href="./styles.css?v=lema-mapa-1">
     <link rel="stylesheet" href="./report-signals.css?v=redisenio-1">
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
@@ -18,9 +18,12 @@
   <body class="public-map-page">
     <header class="site-header map-header">
       <img class="campaign-sign" src="./assets/cartel-primeros-100-dias.png" alt="" width="176" height="176" decoding="async">
-      <div class="site-brand">
-        <span class="site-name">Reclamos<strong>VGG</strong></span>
-        <span class="site-credit">Base de Datos Nico Ramírez 2027</span>
+      <div class="map-brand">
+        <div class="site-brand">
+          <span class="site-name">Reclamos<strong>VGG</strong></span>
+          <span class="site-credit">Base de Datos Nico Ramírez 2027</span>
+        </div>
+        <p class="header-motto"><strong>NO</strong> <span>ESTAMOS DE<br>VACACIONES</span></p>
       </div>
       <button id="report-trigger" class="report-button report-trigger" type="button" hidden>Cargar un reclamo</button>
     </header>
@@ -125,7 +128,7 @@
         <header class="welcome-heading">
           <img src="./assets/cartel-primeros-100-dias.png" alt="" width="96" height="96" decoding="async">
           <h2 id="welcome-title" tabindex="-1" autofocus>Reclamos<strong>VGG</strong></h2>
-          <p class="welcome-motto"><strong>NO</strong> <span>ESTAMOS DE<br>VACACIONES</span></p>
+          <p class="header-motto"><strong>NO</strong> <span>ESTAMOS DE<br>VACACIONES</span></p>
           <button class="report-button welcome-dismiss welcome-close" type="submit" form="welcome-actions" aria-label="Cerrar bienvenida">
             <span aria-hidden="true">×</span>
           </button>
@@ -140,7 +143,7 @@
         </ol>
         <p>Guardá el <strong>código de seguimiento</strong> para consultar el estado de tu reclamo. Una vez aprobado, aparecerá en el mapa.</p>
         <section class="welcome-priority" aria-labelledby="welcome-priority-title">
-          <h3 id="welcome-priority-title">Los primeros 100 días de NICO INTENDENTE 2027</h3>
+          <h3 id="welcome-priority-title">Los primeros 100 días de <span>NICO INTENDENTE 2027</span></h3>
           <p>Si llegamos a la Intendencia en 2027, <strong>nuestra prioridad será resolver los problemas que los vecinos marquen en este mapa</strong>.</p>
         </section>
       </div>

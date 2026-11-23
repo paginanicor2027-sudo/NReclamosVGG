@@ -114,7 +114,31 @@ body {
 .site-name strong { color: var(--paper); font-weight: inherit; }
 .site-credit { color: #aab4bf; font-size: .75rem; font-weight: 540; line-height: 1.25; }
 
+.header-motto {
+  display: flex;
+  align-items: center;
+  gap: .25em;
+  margin: 0;
+  padding-inline-start: clamp(9px, 1.6vw, 15px);
+  border-inline-start: 4px solid var(--paper);
+  color: var(--paper);
+  font: 800 clamp(.91rem, 2.45vw, 1.39rem)/1 Arial, sans-serif;
+}
+
+.header-motto strong { font-size: 2.4em; font-weight: inherit; line-height: .98; }
+
 .site-header.map-header { column-gap: clamp(12px, 2vw, 24px); }
+
+.map-brand {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px clamp(12px, 2vw, 24px);
+  min-width: 0;
+}
+
+.map-brand .header-motto { font-size: clamp(.84rem, 1.8vw, 1.39rem); }
 
 .campaign-sign {
   display: block;
@@ -632,18 +656,6 @@ body {
 .welcome-heading h2 strong { color: var(--paper); font-weight: inherit; }
 .welcome-heading h2:focus { outline: none; }
 
-.welcome-motto {
-  display: flex;
-  align-items: center;
-  gap: .25em;
-  margin: 0;
-  padding-inline-start: clamp(9px, 1.6vw, 15px);
-  border-inline-start: 4px solid var(--paper);
-  color: var(--paper);
-  font: 800 clamp(.91rem, 2.45vw, 1.39rem)/1 Arial, sans-serif;
-}
-
-.welcome-motto strong { font-size: 2.4em; font-weight: inherit; line-height: .98; }
 .welcome-content > p { margin: 0 0 12px; }
 .welcome-credit { color: var(--campaign-yellow); }
 
@@ -658,6 +670,7 @@ body {
   background: #242b36;
 }
 .welcome-priority h3 { margin: 0 0 4px; color: var(--campaign-yellow); font: 400 1.15rem/1.2 var(--display-font); }
+.welcome-priority h3 span { color: var(--paper); }
 .welcome-priority p { margin: 0; }
 
 .welcome-actions { flex-shrink: 0; padding: 12px var(--welcome-inset); border-top: 1px solid #3c4451; }
@@ -784,7 +797,7 @@ body {
 
 @media (max-width: 720px) {
   .welcome-heading { grid-template-columns: auto minmax(0, 1fr) auto; }
-  .welcome-motto { grid-row: 2; grid-column: 2 / -1; }
+  .welcome-heading .header-motto { grid-row: 2; grid-column: 2 / -1; }
   .welcome-close { grid-row: 1; grid-column: 3; }
 }
 
