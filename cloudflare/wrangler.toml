@@ -1,0 +1,17 @@
+name = "reclamosvgg"
+main = "index.ts"
+compatibility_date = "2026-11-22"
+workers_dev = true
+preview_urls = false
+
+[[rules]]
+type = "Text"
+globs = ["**/*.geojson"]
+fallthrough = true
+
+[[d1_databases]]
+binding = "REPORTS_DB"
+database_name = "reclamosvgg"
+# Replace this local placeholder with the ID returned when creating the remote database.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"

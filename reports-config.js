@@ -2,6 +2,7 @@
 export const reportsConfig = {
   endpoint: '',
   directoryEndpoint: '',
+  moderationUrl: '',
   supabaseUrl: '',
   publishableKey: '',
 };

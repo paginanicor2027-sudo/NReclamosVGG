@@ -24,6 +24,7 @@ const reportsList = document.getElementById('moderation-reports');
 const loadMore = document.getElementById('moderation-more');
 const reportTemplate = document.getElementById('moderation-report-template');
 
+const usesAccessKey = Boolean(reportsConfig.moderationUrl);
 const baseUrl = getServiceUrl();
 const records = new Map();
 const pendingChanges = new Set();
@@ -35,7 +36,7 @@ let nextOffset = 0;
 
 function getServiceUrl() {
   try {
-    const url = reportEndpoint(reportsConfig.supabaseUrl);
+    const url = reportEndpoint(reportsConfig.moderationUrl || reportsConfig.supabaseUrl);
     return url && !url.username && !url.password ? url : null;
   } catch {
     return null;
@@ -44,6 +45,7 @@ function getServiceUrl() {
 
 async function request(path, { token, signal, body, prefer, method = 'GET' } = {}) {
   const headers = reportHeaders();
+  if (usesAccessKey) delete headers.apikey;
   if (token) headers.Authorization = `Bearer ${token}`;
   if (body) headers['Content-Type'] = 'application/json';
   if (prefer) headers.Prefer = prefer;
@@ -157,7 +159,9 @@ async function signIn(event) {
     if (loginRequest !== current) return;
     if (!auth.ok) {
       let message = 'El servicio de acceso no está disponible. Volvé a intentar.';
-      if ([400, 401, 403].includes(auth.status)) message = 'Revisá el correo y la contraseña.';
+      if ([400, 401, 403].includes(auth.status)) {
+        message = usesAccessKey ? 'Revisá el correo y la clave de acceso.' : 'Revisá el correo y la contraseña.';
+      }
       if (auth.status === 429) message = 'Hubo demasiados intentos. Esperá un momento y volvé a ingresar.';
       setMessage(loginMessage, message, true);
       return;
@@ -380,6 +384,7 @@ async function changeStatus(report, status) {
 
 if (baseUrl) loginFields.disabled = false;
 else setMessage(loginMessage, noServiceMessage);
+if (usesAccessKey) document.getElementById('moderation-password-label').textContent = 'Clave de acceso';
 
 loginForm.addEventListener('submit', signIn);
 logout.addEventListener('click', () => endSession('Cerraste sesión.', true));

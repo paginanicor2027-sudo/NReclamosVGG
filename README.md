@@ -38,6 +38,76 @@ insert into public.report_moderators (user_id)
 values ('ID-DEL-USUARIO'::uuid);
 ```
 
+## Conectar Cloudflare Workers y D1
+
+Cloudflare Workers y D1 pueden alojar la recepción, la consulta y la moderación dentro de las cuotas del plan Free. El mapa sigue servido por GitHub Pages. [Límites de Workers](https://developers.cloudflare.com/workers/platform/limits/) · [Límites de D1](https://developers.cloudflare.com/d1/platform/limits/)
+
+### Desplegar el servicio
+
+1. Desde la raíz del repositorio, autenticá Wrangler con una cuenta de Cloudflare y creá la base D1.
+
+   ```sh
+   npx wrangler@4.166.0 login
+   npx wrangler@4.166.0 d1 create reclamosvgg --config cloudflare/wrangler.toml
+   ```
+
+2. En `cloudflare/wrangler.toml`, verificá que `database_id` sea el UUID que devolvió D1. La configuración usa `database_name = "reclamosvgg"` y `binding = "REPORTS_DB"`. El Worker admite el origen actual de GitHub Pages. Si necesitás agregar otros orígenes, definí `ALLOWED_ORIGINS` en `[vars]` con los valores separados por comas. Aplicá las migraciones. [Configurar el binding de D1](https://developers.cloudflare.com/workers/wrangler/configuration/#d1-databases) · [Migraciones de D1](https://developers.cloudflare.com/d1/reference/migrations/)
+
+   ```sh
+   npx wrangler@4.166.0 d1 migrations apply reclamosvgg --remote --config cloudflare/wrangler.toml
+   ```
+
+3. Generá una clave de acceso aleatoria de 32 bytes y guardala en tu gestor de contraseñas.
+
+   ```sh
+   node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+   ```
+
+4. Prepará un archivo JSON temporal fuera del repositorio con los secretos `MODERATOR_EMAIL` y `MODERATOR_ACCESS_KEY`. Usá tu correo de moderación y la clave que acabás de generar. Pasá el archivo a Wrangler para cargar los secretos junto con el código y borrá la copia temporal después del despliegue. [Secretos de Cloudflare Workers](https://developers.cloudflare.com/workers/configuration/secrets/#upload-secrets-alongside-code)
+
+   ```json
+   {
+     "MODERATOR_EMAIL": "CORREO-DE-MODERACIÓN",
+     "MODERATOR_ACCESS_KEY": "CLAVE-HEX-GENERADA"
+   }
+   ```
+
+   ```sh
+   npx wrangler@4.166.0 deploy --config cloudflare/wrangler.toml --secrets-file "RUTA-AL-ARCHIVO-JSON"
+   ```
+
+5. En `reports-config.js`, usá el origen HTTPS del Worker que devuelve Wrangler. Abrí el panel con el correo y la clave de acceso configurados como secretos del Worker.
+
+   ```js
+   const worker = 'https://reclamosvgg.TU-SUBDOMINIO.workers.dev';
+
+   export const reportsConfig = {
+     endpoint: `${worker}/api/reclamos`,
+     directoryEndpoint: `${worker}/api/reclamos-publicados`,
+     moderationUrl: worker,
+     supabaseUrl: '',
+     publishableKey: '',
+   };
+   ```
+
+### Probar con Workers y D1 locales
+
+Configurá `cloudflare/.dev.vars` con un correo y una clave de prueba en `MODERATOR_EMAIL` y `MODERATOR_ACCESS_KEY`. Generá esa clave con el mismo comando de 32 bytes. Para esta vista previa, usá `ALLOWED_ORIGINS="http://127.0.0.1:4173"`. Desde la raíz del repositorio, inicializá D1 local y lanzá el Worker en el puerto 8787.
+
+```sh
+npx wrangler@4.166.0 d1 migrations apply reclamosvgg --local --persist-to .local/cloudflare-state --config cloudflare/wrangler.toml
+npx wrangler@4.166.0 dev --port 8787 --persist-to .local/cloudflare-state --config cloudflare/wrangler.toml
+```
+
+En otra terminal, iniciá la vista previa con `RECLAMOS_PREVIEW_WORKER_URL` apuntando al Worker.
+
+```powershell
+$env:RECLAMOS_PREVIEW_WORKER_URL = 'http://127.0.0.1:8787'
+npm run preview:reports
+```
+
+En Bash o una terminal POSIX, usá `RECLAMOS_PREVIEW_WORKER_URL=http://127.0.0.1:8787 npm run preview:reports`. Abrí el [mapa local](http://127.0.0.1:4173/ReclamosVGG/) y el [panel local](http://127.0.0.1:4173/ReclamosVGG/admin.html). El panel acepta las credenciales de `cloudflare/.dev.vars`.
+
 ## Publicar en GitHub Pages
 
 Para publicar desde la rama `main`, elegí **Deploy from a branch** en **Settings → Pages** y seleccioná `main` y `/(root)`. El sitio es estático y usa rutas relativas para funcionar bajo `/NReclamosVGG/`. [Guía de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)

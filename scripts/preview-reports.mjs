@@ -11,72 +11,78 @@ const root = new URL('../', import.meta.url);
 const port = Number(process.env.PORT ?? '4173');
 const origin = `http://127.0.0.1:${port}`;
 const basePaths = ['/ReclamosVGG/', '/NReclamosVGG/'];
-const dataDirectory = new URL('.local/', root);
-const migrations = new URL('supabase/migrations/', root);
-const boundary = JSON.parse(await readFile(new URL('data/villa-gobernador-galvez.geojson', root), 'utf8'));
+const workerUrl = process.env.RECLAMOS_PREVIEW_WORKER_URL;
 
-await mkdir(dataDirectory, { recursive: true });
-const db = new PGlite(fileURLToPath(new URL('reports-db', dataDirectory)));
-await db.exec(`
-  do $$ begin
-    if not exists (select 1 from pg_roles where rolname = 'service_role') then
-      create role service_role bypassrls;
-      create role anon;
-      create role authenticated;
-    end if;
-  end $$;
-  create schema if not exists preview;
-  create table if not exists preview.migrations (name text primary key);
-`);
-await db.exec(previewAuthSchema);
+async function createLocalRoutes() {
+  const dataDirectory = new URL('.local/', root);
+  const migrations = new URL('supabase/migrations/', root);
+  const boundary = JSON.parse(await readFile(new URL('data/villa-gobernador-galvez.geojson', root), 'utf8'));
 
-const { rows: appliedMigrations } = await db.query('select name from preview.migrations');
-const appliedNames = new Set(appliedMigrations.map(({ name }) => name));
-for (const file of (await readdir(migrations)).sort()) {
-  if (!file.endsWith('.sql') || appliedNames.has(file)) continue;
-  const sql = await readFile(new URL(file, migrations), 'utf8');
-  await db.transaction(async (transaction) => {
-    await transaction.exec(sql);
-    await transaction.query('insert into preview.migrations (name) values ($1)', [file]);
-  });
-}
+  await mkdir(dataDirectory, { recursive: true });
+  const db = new PGlite(fileURLToPath(new URL('reports-db', dataDirectory)));
+  await db.exec(`
+    do $$ begin
+      if not exists (select 1 from pg_roles where rolname = 'service_role') then
+        create role service_role bypassrls;
+        create role anon;
+        create role authenticated;
+      end if;
+    end $$;
+    create schema if not exists preview;
+    create table if not exists preview.migrations (name text primary key);
+  `);
+  await db.exec(previewAuthSchema);
 
-function reportRpc(sql, parameters) {
-  return db.transaction(async (transaction) => {
-    await transaction.exec('set local role service_role');
-    const { rows: [row] } = await transaction.query(sql, parameters);
-    return row.result;
-  });
-}
+  const { rows: appliedMigrations } = await db.query('select name from preview.migrations');
+  const appliedNames = new Set(appliedMigrations.map(({ name }) => name));
+  for (const file of (await readdir(migrations)).sort()) {
+    if (!file.endsWith('.sql') || appliedNames.has(file)) continue;
+    const sql = await readFile(new URL(file, migrations), 'utf8');
+    await db.transaction(async (transaction) => {
+      await transaction.exec(sql);
+      await transaction.query('insert into preview.migrations (name) values ($1)', [file]);
+    });
+  }
 
-const handleReport = createReportHandler({
-  allowedOrigins: [origin],
-  boundary,
-  store: ({ requestId, category, description, latitude, longitude }) => reportRpc(
+  function reportRpc(sql, parameters) {
+    return db.transaction(async (transaction) => {
+      await transaction.exec('set local role service_role');
+      const { rows: [row] } = await transaction.query(sql, parameters);
+      return row.result;
+    });
+  }
+
+  const handleReport = createReportHandler({
+    allowedOrigins: [origin],
+    boundary,
+    store: ({ requestId, category, description, latitude, longitude }) => reportRpc(
       'select public.submit_report($1::uuid, $2::text, $3::text, $4::double precision, $5::double precision) as result',
       [requestId, category, description, latitude, longitude],
-  ),
-});
-
-const handleDirectory = createReportDirectoryHandler({
-  allowedOrigins: [origin],
-  store: {
-    list: ({ category, status, offset }) => reportRpc(
-      'select public.list_published_reports($1::text, $2::text, $3::integer) as result',
-      [category, status, offset],
     ),
-    track: (trackingNumber) => reportRpc('select public.track_report($1::text) as result', [trackingNumber]),
-  },
-});
+  });
 
-const handleModeration = await createPreviewModeration(db);
-const routes = new Map([
-  ['/api/reclamos', handleReport],
-  ['/api/reclamos-publicados', handleDirectory],
-  ['/auth/v1/token', handleModeration],
-  ['/rest/v1/report_moderators', handleModeration],
-  ['/rest/v1/reports', handleModeration],
-]);
+  const handleDirectory = createReportDirectoryHandler({
+    allowedOrigins: [origin],
+    store: {
+      list: ({ category, status, offset }) => reportRpc(
+        'select public.list_published_reports($1::text, $2::text, $3::integer) as result',
+        [category, status, offset],
+      ),
+      track: (trackingNumber) => reportRpc('select public.track_report($1::text) as result', [trackingNumber]),
+    },
+  });
+
+  const handleModeration = await createPreviewModeration(db);
+  return new Map([
+    ['/api/reclamos', handleReport],
+    ['/api/reclamos-publicados', handleDirectory],
+    ['/auth/v1/token', handleModeration],
+    ['/rest/v1/report_moderators', handleModeration],
+    ['/rest/v1/reports', handleModeration],
+  ]);
+}
+
+const routes = workerUrl ? new Map() : await createLocalRoutes();
 
 const assetTypes = new Map([
   ['index.html', 'text/html; charset=utf-8'],
@@ -92,11 +98,16 @@ const assetTypes = new Map([
   ['data/villa-gobernador-galvez.geojson', 'application/geo+json'],
 ]);
 
-const previewConfig = `export const reportsConfig = ${JSON.stringify({
+const previewOptions = workerUrl ? {
+  endpoint: new URL('/api/reclamos', workerUrl).href,
+  directoryEndpoint: new URL('/api/reclamos-publicados', workerUrl).href,
+  moderationUrl: new URL(workerUrl).origin,
+} : {
   endpoint: '/api/reclamos',
   directoryEndpoint: '/api/reclamos-publicados',
   supabaseUrl: origin,
-})};\n`;
+};
+const previewConfig = `export const reportsConfig = ${JSON.stringify(previewOptions)};\n`;
 
 const server = createServer(async (incoming, outgoing) => {
   const url = new URL(incoming.url, origin);
