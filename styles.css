@@ -31,6 +31,8 @@ body {
   margin: 0;
 }
 
+.public-map-page { grid-template-rows: auto auto minmax(0, 1fr); }
+
 .site-header {
   position: relative;
   isolation: isolate;
@@ -92,6 +94,32 @@ body {
 .site-name strong { color: inherit; font-weight: inherit; }
 .site-credit { color: #fff; font-size: .79rem; font-weight: 560; line-height: 1.25; }
 
+.report-message {
+  padding: 10px max(var(--map-inset), env(safe-area-inset-right)) 10px max(var(--map-inset), env(safe-area-inset-left));
+  border-bottom: 1px solid #e8c475;
+  background: linear-gradient(105deg, #fff1be, #fff9e9 70%);
+}
+
+.report-message-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 21px;
+  padding-inline-start: 11px;
+  border-inline-start: 4px solid var(--signal-orange);
+}
+
+.report-message h1 {
+  margin: 0;
+  font-size: clamp(1.02rem, 2vw, 1.35rem);
+  font-weight: 840;
+  line-height: 1.12;
+  letter-spacing: -.018em;
+}
+
+.report-message p { margin: 0; font-size: .86rem; line-height: 1.35; }
+.report-message strong { color: var(--teal); font-weight: 790; }
+
 .map-view { position: relative; isolation: isolate; background: #e9f7f1; }
 
 #map {
@@ -127,7 +155,8 @@ body {
 }
 
 .city-province { margin: 0 0 5px; color: var(--teal); font-size: .76rem; font-weight: 720; }
-.city-card h1 { margin: 0; font-size: clamp(1.25rem, 2.5vw, 1.72rem); line-height: 1.1; letter-spacing: -.04em; }
+.city-card h2 { margin: 0; font-size: clamp(1.25rem, 2.5vw, 1.72rem); line-height: 1.1; letter-spacing: -.04em; }
+.city-card:has(.directory-filters[open]) { z-index: 3; }
 .city-links { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px; font-size: .78rem; pointer-events: auto; }
 .city-links a, .civic-info a { color: var(--teal); text-underline-offset: 2px; }
 .civic-info { width: min(760px, calc(100% - 36px)); margin: 30px auto; padding: clamp(18px, 4vw, 34px); border: 1px solid var(--edge); background: var(--paper); border-radius: 14px; line-height: 1.55; }
@@ -599,4 +628,14 @@ body {
   .brand-mark { flex-basis: 32px; width: 32px; height: 32px; }
   .report-trigger { padding-inline: 8px; font-size: .78rem; }
   .report-trigger::before { display: none; }
+  .report-message p { font-size: .81rem; }
+  .public-map-page .directory-actions { gap: 4px; }
+  .public-map-page :is(.directory-filters > summary, .directory-actions > .directory-track-button) {
+    padding-inline: 6px;
+    font-size: .75rem;
+  }
+}
+
+@media (max-height: 640px) {
+  .public-map-page .directory-filter-fields .report-category-picker-list { max-height: min(27dvh, 17.5rem); }
 }

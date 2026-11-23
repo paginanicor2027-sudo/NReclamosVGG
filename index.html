@@ -9,13 +9,13 @@
     <title>ReclamosVGG · Villa Gobernador Gálvez</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="./styles.css?v=turquesa-2027">
+    <link rel="stylesheet" href="./styles.css?v=mensaje-1">
     <link rel="stylesheet" href="./report-signals.css?v=selector-1">
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
     <script defer src="./app.js?v=selector-1"></script>
   </head>
-  <body>
+  <body class="public-map-page">
     <header class="site-header">
       <span class="brand-mark" aria-hidden="true"><span class="pin-icon"></span></span>
       <div class="site-brand">
@@ -25,6 +25,13 @@
       <button id="report-trigger" class="report-button report-trigger" type="button" hidden>Hacer un reclamo</button>
     </header>
 
+    <section class="report-message" aria-labelledby="report-message-title">
+      <div class="report-message-content">
+        <h1 id="report-message-title">RICCI, LOS RECLAMOS NO SE TOMAN VACACIONES.</h1>
+        <p><strong>NICO te escucha.</strong> Poné tu reclamo en el mapa y, si tenés una foto, adjuntala.</p>
+      </div>
+    </section>
+
     <main class="map-view" aria-labelledby="city-name">
       <div id="map" role="region" aria-label="Mapa interactivo de Villa Gobernador Gálvez"
         aria-describedby="map-instructions"></div>
@@ -32,7 +39,7 @@
 
       <div class="city-card">
         <p class="city-province">Santa Fe, Argentina</p>
-        <h1 id="city-name">Villa Gobernador Gálvez</h1>
+        <h2 id="city-name">Villa Gobernador Gálvez</h2>
         <div id="report-directory" class="report-directory" hidden>
           <div class="directory-actions">
             <details class="directory-filters">
