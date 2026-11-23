@@ -21,6 +21,7 @@
         <span class="site-name">NReclamosVGG</span>
         <span class="site-credit">Proyecto de Nicolás Ramírez</span>
       </div>
+      <button id="report-trigger" class="report-button report-trigger" type="button" hidden>Hacer un reclamo</button>
     </header>
 
     <main class="map-view" aria-labelledby="city-name">
@@ -53,8 +54,59 @@
         <span class="legend-swatch" aria-hidden="true"></span>
         <span>Límite municipal</span>
       </div>
+      <div id="report-crosshair" class="report-crosshair" aria-hidden="true" hidden></div>
+      <section id="report-location-panel" class="report-location-panel" aria-labelledby="report-location-title" hidden>
+        <h2 id="report-location-title">Marcá la ubicación</h2>
+        <p id="report-location-help">Elegí un punto dentro de Villa Gobernador Gálvez. Con el teclado, mové el mapa con las flechas y presioná Enter para marcar su centro.</p>
+        <p id="report-location-status" class="report-feedback" role="status"></p>
+        <div class="report-location-actions">
+          <button id="report-use-center" class="report-button report-secondary" type="button">Usar el centro del mapa</button>
+          <button id="report-continue" class="report-button" type="button" disabled>Continuar</button>
+          <button id="report-cancel-location" class="report-button report-text-button" type="button">Cancelar</button>
+        </div>
+      </section>
       <p id="map-status" class="map-status" role="status"></p>
       <noscript><p class="map-status">Activá JavaScript para ver el mapa.</p></noscript>
     </main>
+
+    <dialog id="report-dialog" class="report-dialog" aria-labelledby="report-dialog-title">
+      <div class="report-dialog-body">
+        <header class="report-dialog-header">
+          <h2 id="report-dialog-title" tabindex="-1">Hacer un reclamo</h2>
+          <button id="report-close" class="report-button report-text-button" type="button">Cerrar</button>
+        </header>
+
+        <form id="report-form" novalidate>
+          <div class="report-location-summary">
+            <span>Ubicación marcada en el mapa</span>
+            <button id="report-change-location" class="report-button report-text-button" type="button">Cambiar ubicación</button>
+          </div>
+          <p id="report-privacy" class="report-help">El envío es anónimo. Evitá incluir nombres, teléfonos u otros datos personales.</p>
+          <div class="report-fields">
+            <label for="report-category">Categoría</label>
+            <select id="report-category" name="category" required>
+              <option value="" disabled selected>Elegí una categoría</option>
+              <option value="baches">Baches</option>
+              <option value="luminarias">Luminarias</option>
+              <option value="residuos">Residuos</option>
+              <option value="desagues">Desagües</option>
+              <option value="otros">Otros</option>
+            </select>
+            <label for="report-description">Descripción breve</label>
+            <textarea id="report-description" name="description" rows="4" required aria-describedby="report-description-count report-privacy"></textarea>
+            <p id="report-description-count" class="report-help report-count">0 de 400 caracteres</p>
+          </div>
+          <p id="report-error" class="report-feedback report-error" role="alert"></p>
+          <p id="report-sending" class="report-feedback" role="status"></p>
+          <button id="report-submit" class="report-button" type="submit">Enviar reclamo</button>
+        </form>
+
+        <div id="report-confirmation" hidden>
+          <p>El reclamo quedó pendiente de revisión. Guardá este código de seguimiento.</p>
+          <p id="report-tracking-code" class="report-tracking-code"></p>
+          <button id="report-new" class="report-button" type="button">Hacer otro reclamo</button>
+        </div>
+      </div>
+    </dialog>
   </body>
 </html>

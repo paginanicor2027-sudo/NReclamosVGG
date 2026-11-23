@@ -1,0 +1,4 @@
+project_id = "nreclamosvgg"
+
+[functions.submit-report]
+verify_jwt = false

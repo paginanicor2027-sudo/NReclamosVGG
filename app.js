@@ -128,6 +128,14 @@ async function initializeMap() {
   updateZoom();
 
   addStreetMap(map, bounds);
+  if (bounds) {
+    try {
+      const { initializeReportForm } = await import('./report-form.js');
+      initializeReportForm(map, L);
+    } catch (error) {
+      console.warn('No se pudo iniciar el formulario de reclamos.', error);
+    }
+  }
 }
 
 initializeMap();

@@ -1,0 +1,15 @@
+{
+  "name": "nreclamosvgg",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "preview:reports": "node scripts/preview-reports.mjs",
+    "prepare:reports": "node -e \"require('node:fs').copyFileSync('data/villa-gobernador-galvez.geojson', 'supabase/functions/submit-report/boundary.json')\""
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.17"
+  }
+}

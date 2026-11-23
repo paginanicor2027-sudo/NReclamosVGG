@@ -6,6 +6,25 @@ Mapa interactivo de Villa Gobernador Gálvez, Santa Fe, para Nicolás Ramírez. 
 
 Con Python 3, ejecutá `python -m http.server 8000` desde esta carpeta y abrí [http://localhost:8000/](http://localhost:8000/) en Chrome. Leaflet y el mapa de calles se cargan por internet.
 
+## Probar el envío de reclamos
+
+Con Node.js 24 y npm, ejecutá estos comandos desde esta carpeta.
+
+```sh
+npm ci
+npm run preview:reports
+```
+
+Abrí [la vista previa local](http://127.0.0.1:4173/NReclamosVGG/). Elegí **Hacer un reclamo**, marcá un punto en Villa Gobernador Gálvez, elegí una categoría y enviá una descripción de prueba. El envío devuelve un código de seguimiento y queda en estado pendiente de revisión.
+
+La vista previa usa la misma validación del servidor y migración SQL que la función de Supabase. PostgreSQL se ejecuta localmente con PGlite y guarda los reclamos de prueba en `.local/reports-db`.
+
+## Conectar Supabase
+
+En un proyecto dedicado, aplicá la migración de `supabase/migrations` y desplegá la función `submit-report`. Ejecutá primero `npm run prepare:reports` para incluir en la función una copia del GeoJSON del mapa. La función usa las credenciales de servidor que provee Supabase.
+
+Para activar el formulario en GitHub Pages, completá `endpoint` en `reports-config.js` con la URL HTTPS de `submit-report`. `publishableKey` admite una clave pública de Supabase. Con el endpoint vacío, el sitio público muestra el mapa de consulta. [Documentación de Edge Functions](https://supabase.com/docs/guides/functions)
+
 ## Publicar en GitHub Pages
 
 Para publicar desde la rama `main`, elegí **Deploy from a branch** en **Settings → Pages** y seleccioná `main` y `/(root)`. El sitio es estático y usa rutas relativas para funcionar bajo `/NReclamosVGG/`. [Guía de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
