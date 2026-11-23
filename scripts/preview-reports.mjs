@@ -102,6 +102,7 @@ const assetTypes = new Map([
   ['info.css', 'text/css; charset=utf-8'],
   ['reports-config.js', 'text/javascript; charset=utf-8'],
   ['assets/fondo-deportistas.jpg', 'image/jpeg'],
+  ['assets/cartel-primeros-100-dias.png', 'image/png'],
   ['assets/fonts/anton-latin.woff2', 'font/woff2'],
   ['data/villa-gobernador-galvez.geojson', 'application/geo+json'],
 ]);
