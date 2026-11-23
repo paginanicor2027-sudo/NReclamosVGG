@@ -133,7 +133,7 @@ async function initializeMap() {
     try {
       const [{ initializeReportForm }, { initializeReportDirectory }, { initializeReportAddress }] = await Promise.all([
         import('./report-form.js?v=categorias-1'),
-        import('./report-directory.js?v=categorias-1'),
+        import('./report-directory.js?v=carteles-1'),
         import('./report-address.js?v=vecinos-2'),
       ]);
       const reportForm = initializeReportForm(map, L, boundary.geojson);

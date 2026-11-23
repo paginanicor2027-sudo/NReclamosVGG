@@ -1,5 +1,6 @@
 import { reportsConfig } from './reports-config.js?v=vecinos-2';
-import { formatReportDate, publicStatuses, reportCategories, reportCategoryIcons, reportCategoryOption, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=categorias-1';
+import { formatReportDate, publicStatuses, reportCategories, reportCategoryOption, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=categorias-1';
+import { createReportPictogram } from './report-pictograms.js?v=carteles-1';
 
 const publicIdPattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const roadwayCategories = new Set(['baches', 'arbolado', 'espacios_publicos', 'transito', 'veredas']);
@@ -21,23 +22,15 @@ function appendText(parent, tag, text, className = '') {
   parent.append(element);
 }
 
-function categoryGlyph(category) {
-  return reportCategoryIcons[category] ?? reportCategoryIcons.otros;
-}
-
 function appendCategoryTitle(parent, category, className) {
   const title = document.createElement('strong');
   title.classList.add('report-category-title');
   if (className) title.classList.add(className);
-  const glyph = document.createElement('span');
-  glyph.className = 'report-category-glyph';
-  glyph.setAttribute('aria-hidden', 'true');
-  glyph.textContent = categoryGlyph(category);
-  title.append(glyph, reportCategories[category]);
+  title.append(categorySign(category, true), reportCategories[category]);
   parent.append(title);
 }
 
-function signalIcon(leaflet, category, status) {
+function categorySign(category, compact = false) {
   let family = 'services';
   if (roadwayCategories.has(category)) family = 'roads';
   else if (riskCategories.has(category)) family = 'risk';
@@ -45,11 +38,16 @@ function signalIcon(leaflet, category, status) {
 
   const badge = document.createElement('span');
   badge.className = `report-signal-badge report-signal--${family}`;
+  if (compact) badge.classList.add('report-signal-badge--mini');
   badge.setAttribute('aria-hidden', 'true');
-  appendText(badge, 'span', categoryGlyph(category), 'report-signal-glyph');
+  badge.append(createReportPictogram(category));
+  return badge;
+}
+
+function signalIcon(leaflet, category, status) {
   return leaflet.divIcon({
     className: `report-signal-marker report-signal-marker--${status}`,
-    html: badge,
+    html: categorySign(category),
     iconSize: [40, 40],
     iconAnchor: [20, 20],
     popupAnchor: [0, -19],

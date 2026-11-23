@@ -94,6 +94,7 @@ const assetTypes = new Map([
   ['admin.js', 'text/javascript; charset=utf-8'],
   ['report-client.js', 'text/javascript; charset=utf-8'],
   ['report-directory.js', 'text/javascript; charset=utf-8'],
+  ['report-pictograms.js', 'text/javascript; charset=utf-8'],
   ['report-form.js', 'text/javascript; charset=utf-8'],
   ['report-address.js', 'text/javascript; charset=utf-8'],
   ['privacidad.html', 'text/html; charset=utf-8'],

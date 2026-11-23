@@ -6,17 +6,17 @@
 }
 
 .report-signal-badge {
-  --signal-fill: var(--signal-yellow, #f8c94c);
-  --signal-ink: #162c34;
-  --signal-silhouette: polygon(23% 0, 77% 0, 100% 23%, 100% 77%, 77% 100%, 23% 100%, 0 77%, 0 23%);
+  --signal-face: #ffdb55;
+  --signal-family: var(--signal-yellow, #ffda55);
+  --signal-band: 4px;
+  --signal-silhouette: polygon(19% 0, 81% 0, 100% 19%, 100% 81%, 81% 100%, 19% 100%, 0 81%, 0 19%);
   position: relative;
   display: inline-grid;
   place-items: center;
   width: 32px;
   height: 32px;
   isolation: isolate;
-  color: var(--signal-ink);
-  font: 850 15px/1 system-ui, sans-serif;
+  color: #201c13;
   filter: drop-shadow(0 2px 2px #15313d66);
 }
 
@@ -27,23 +27,27 @@
   clip-path: var(--signal-silhouette);
 }
 
-.report-signal-badge::before { inset: 0; z-index: -2; background: #19313b; }
-.report-signal-badge::after { inset: 1.5px; z-index: -1; background: var(--signal-fill); }
-.report-signal--roads { --signal-fill: var(--signal-orange, #ff7b29); }
-.report-signal--risk { --signal-fill: var(--signal-red, #b6342f); --signal-ink: #fff; }
-.report-signal--services { --signal-fill: var(--signal-blue, #287abd); --signal-ink: #fff; }
-.report-signal--lighting { --signal-fill: var(--signal-yellow, #f8c94c); }
-.report-signal-badge--key { width: 22px; height: 22px; flex: none; font-size: 12px; filter: none; }
-
-.report-signal-glyph, .report-category-glyph {
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", system-ui, sans-serif;
-  font-weight: 400;
-  line-height: 1;
+.report-signal-badge::before { inset: 0; z-index: -2; background: #201c13; }
+.report-signal-badge::after {
+  inset: 1.5px;
+  z-index: -1;
+  background: linear-gradient(
+    var(--signal-face) 0 calc(100% - var(--signal-band)),
+    var(--signal-family) calc(100% - var(--signal-band)) 100%
+  );
 }
+.report-signal--roads { --signal-family: var(--signal-orange, #ff8a38); }
+.report-signal--risk { --signal-family: var(--signal-red, #b6342f); }
+.report-signal--services { --signal-family: var(--signal-blue, #287abd); }
+.report-signal--lighting { --signal-family: var(--signal-yellow, #ffda55); }
+.report-signal-badge--key,
+.report-signal-badge--mini { width: 22px; height: 22px; flex: none; filter: none; }
+.report-signal-badge--key::after { background: var(--signal-family); }
+.report-signal-badge--mini { --signal-band: 3px; }
 
-.report-signal-marker .report-signal-glyph { font-size: 17px; }
+.report-pictogram { display: block; flex: none; width: 1.2em; height: 1.2em; }
+.report-signal-badge > .report-pictogram { width: 66%; height: 66%; margin-bottom: 2px; }
 .report-category-title { display: flex; align-items: center; gap: .45em; }
-.report-category-glyph { flex: none; }
 
 .leaflet-marker-icon.report-signal-marker:focus-visible {
   outline: 2px solid #075c70;
@@ -71,5 +75,4 @@
 
 @media (max-width: 660px) {
   .report-signal-marker .report-signal-badge { width: 28px; height: 28px; }
-  .report-signal-marker .report-signal-glyph { font-size: 15px; }
 }
