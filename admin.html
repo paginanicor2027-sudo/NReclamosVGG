@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#02807d">
+    <meta name="theme-color" content="#0d1015">
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="no-referrer">
     <title>Moderación de reclamos · ReclamosVGG</title>
-    <link rel="stylesheet" href="./styles.css?v=turquesa-2027">
-    <link rel="stylesheet" href="./admin.css?v=turquesa-2027">
+    <link rel="stylesheet" href="./styles.css?v=redisenio-1">
+    <link rel="stylesheet" href="./admin.css?v=redisenio-1">
     <script type="module" src="./admin.js?v=categorias-1"></script>
   </head>
   <body class="moderation-page">
@@ -25,7 +25,9 @@
     </header>
 
     <main class="moderation-main" aria-labelledby="moderation-title">
-      <h1 id="moderation-title" tabindex="-1">Moderación de reclamos</h1>
+      <div class="moderation-intro">
+        <h1 id="moderation-title" tabindex="-1">Moderación de reclamos</h1>
+      </div>
       <section id="moderation-login" class="moderation-card moderation-login" aria-labelledby="moderation-login-title">
         <h2 id="moderation-login-title">Ingresá a tu cuenta</h2>
         <form id="moderation-login-form" method="post">
@@ -45,15 +47,16 @@
         <div class="moderation-toolbar">
           <h2 id="moderation-reports-title" tabindex="-1">Reclamos</h2>
           <div class="moderation-toolbar-actions">
-            <label for="moderation-filter">Estado</label>
-            <select id="moderation-filter">
-              <option value="">Todos</option>
-              <option value="pending_review" selected>Pendientes de revisión</option>
-              <option value="published">Publicados</option>
-              <option value="in_progress">En seguimiento</option>
-              <option value="resolved">Resueltos</option>
-              <option value="rejected">Rechazados</option>
-            </select>
+            <label for="moderation-filter">Estado
+              <select id="moderation-filter">
+                <option value="">Todos</option>
+                <option value="pending_review" selected>Pendientes de revisión</option>
+                <option value="published">Publicados</option>
+                <option value="in_progress">En seguimiento</option>
+                <option value="resolved">Resueltos</option>
+                <option value="rejected">Rechazados</option>
+              </select>
+            </label>
             <button id="moderation-refresh" class="moderation-button moderation-secondary" type="button">Actualizar lista</button>
           </div>
         </div>

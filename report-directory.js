@@ -120,6 +120,7 @@ function initializeMapReports(endpoint, map, leaflet) {
 
   function openReport(marker, focus = false) {
     showList(false);
+    map.getContainer().scrollIntoView({ block: 'nearest' });
     map.setView(marker.getLatLng(), Math.max(16, map.getZoom()), { animate: false });
     if (focus) marker.getElement()?.focus({ preventScroll: true });
     marker.openPopup();

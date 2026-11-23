@@ -3,9 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#02807d">
+    <meta name="theme-color" content="#0d1015">
     <title>Cómo funciona y privacidad · ReclamosVGG</title>
-    <link rel="stylesheet" href="./styles.css?v=turquesa-2027">
+    <link rel="stylesheet" href="./styles.css?v=redisenio-1">
+    <link rel="stylesheet" href="./info.css?v=redisenio-1">
   </head>
   <body class="information-page">
     <header class="site-header">
@@ -15,17 +16,27 @@
         <span class="site-credit">Base de Datos Nico Ramírez 2027</span>
       </div>
     </header>
-    <main class="civic-info">
-      <a href="./">Volver al mapa</a>
-      <h1>Cómo funciona y privacidad</h1>
-      <p>ReclamosVGG es un proyecto vecinal para registrar problemas de Villa Gobernador Gálvez y consultarlos en un mapa. Para abrir un expediente municipal, usá los <a href="https://vggmunicipalidad.gov.ar/tramite/128/reclamos/" target="_blank" rel="noopener noreferrer">canales oficiales de la Municipalidad</a>.</p>
-      <h2>Enviar y seguir un reclamo</h2>
-      <p>Describí el problema, marcá dónde ocurre y agregá una foto si ayuda a ubicarlo o entenderlo. El equipo del sitio revisa los reclamos antes de publicarlos. Guardá tu código para consultar el estado.</p>
-      <h2>Qué se muestra en el mapa</h2>
-      <p>Un reclamo aprobado puede mostrar la categoría, descripción, ubicación, referencia, foto, estado y si ya lo habías reclamado. Evitá incluir nombres, patentes, caras, teléfonos u otros datos personales en esos campos o en la foto.</p>
-      <h2>Qué queda en privado</h2>
-      <p>El equipo de moderación puede ver el contacto opcional y usarlo para consultar sobre el reclamo. El contacto y el código de seguimiento quedan fuera del mapa y de los enlaces para compartir.</p>
-      <p>El borrador guarda el texto y la ubicación en la sesión de este navegador. La foto y el contacto se excluyen del borrador. Si buscás una dirección, el texto de esa búsqueda se consulta en el <a href="https://www.argentina.gob.ar/georef" target="_blank" rel="noopener noreferrer">Servicio Georef</a>. La ubicación del dispositivo se solicita al elegir esa opción.</p>
+    <main class="info-shell" aria-labelledby="info-title">
+      <a class="info-back" href="./"><span aria-hidden="true">←</span> Volver al mapa</a>
+      <article class="info-article">
+        <header class="info-intro">
+          <h1 id="info-title">Cómo funciona y privacidad</h1>
+          <p>ReclamosVGG es un proyecto vecinal para registrar problemas de Villa Gobernador Gálvez y consultarlos en un mapa. Para abrir un expediente municipal, usá los <a href="https://vggmunicipalidad.gov.ar/tramite/128/reclamos/" target="_blank" rel="noopener noreferrer">canales oficiales de la Municipalidad</a>.</p>
+        </header>
+        <section class="info-section" aria-labelledby="info-send">
+          <h2 id="info-send">Enviar y seguir un reclamo</h2>
+          <p>Describí el problema, marcá dónde ocurre y agregá una foto si ayuda a ubicarlo o entenderlo. El equipo del sitio revisa los reclamos antes de publicarlos. Guardá tu código para consultar el estado.</p>
+        </section>
+        <section class="info-section" aria-labelledby="info-public">
+          <h2 id="info-public">Qué se muestra en el mapa</h2>
+          <p>Un reclamo aprobado puede mostrar la categoría, descripción, ubicación, referencia, foto, estado y si ya lo habías reclamado. Evitá incluir nombres, patentes, caras, teléfonos u otros datos personales en esos campos o en la foto.</p>
+        </section>
+        <section class="info-section" aria-labelledby="info-private">
+          <h2 id="info-private">Qué queda en privado</h2>
+          <p>El equipo de moderación puede ver el contacto opcional y usarlo para consultar sobre el reclamo. El contacto y el código de seguimiento quedan fuera del mapa y de los enlaces para compartir.</p>
+          <p>El borrador guarda el texto y la ubicación en la sesión de este navegador. La foto y el contacto se excluyen del borrador. Si buscás una dirección, el texto de esa búsqueda se consulta en el <a href="https://www.argentina.gob.ar/georef" target="_blank" rel="noopener noreferrer">Servicio Georef</a>. La ubicación del dispositivo se solicita al elegir esa opción.</p>
+        </section>
+      </article>
     </main>
   </body>
 </html>

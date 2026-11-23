@@ -6,8 +6,8 @@
 }
 
 .report-signal-badge {
-  --signal-face: #ffdb55;
-  --signal-family: var(--signal-yellow, #ffda55);
+  --signal-face: var(--yellow);
+  --signal-family: var(--yellow);
   --signal-band: 4px;
   --signal-silhouette: polygon(19% 0, 81% 0, 100% 19%, 100% 81%, 81% 100%, 19% 100%, 0 81%, 0 19%);
   position: relative;
@@ -16,8 +16,8 @@
   width: 32px;
   height: 32px;
   isolation: isolate;
-  color: #201c13;
-  filter: drop-shadow(0 2px 2px #15313d66);
+  color: var(--ink);
+  filter: drop-shadow(0 2px 2px #1a1d2252);
 }
 
 .report-signal-badge::before,
@@ -27,7 +27,7 @@
   clip-path: var(--signal-silhouette);
 }
 
-.report-signal-badge::before { inset: 0; z-index: -2; background: #201c13; }
+.report-signal-badge::before { inset: 0; z-index: -2; background: var(--ink); }
 .report-signal-badge::after {
   inset: 1.5px;
   z-index: -1;
@@ -36,10 +36,9 @@
     var(--signal-family) calc(100% - var(--signal-band)) 100%
   );
 }
-.report-signal--roads { --signal-family: var(--signal-orange, #ff8a38); }
-.report-signal--risk { --signal-family: var(--signal-red, #b6342f); }
+.report-signal--roads { --signal-family: var(--orange); }
+.report-signal--risk { --signal-family: var(--signal-red, #ff4d3d); }
 .report-signal--services { --signal-family: var(--signal-blue, #287abd); }
-.report-signal--lighting { --signal-family: var(--signal-yellow, #ffda55); }
 .report-signal-badge--key,
 .report-signal-badge--mini { width: 22px; height: 22px; flex: none; filter: none; }
 .report-signal-badge--key::after { background: var(--signal-family); }
@@ -57,7 +56,7 @@
   gap: .55rem;
   min-height: 42px;
   padding: .5rem .65rem;
-  border: 1px solid #78b7ab;
+  border: 1px solid #88919b;
   border-radius: 9px;
   background: var(--paper);
   color: var(--ink);
@@ -76,14 +75,15 @@
   width: 7px;
   height: 7px;
   margin: -3px .2rem 0 auto;
-  border-right: 2px solid var(--teal);
-  border-bottom: 2px solid var(--teal);
+  border-right: 2px solid var(--accent-ink);
+  border-bottom: 2px solid var(--accent-ink);
   transform: rotate(45deg);
 }
 
+.report-category-picker-trigger:hover,
 .report-category-picker[open] > .report-category-picker-trigger {
-  border-color: var(--teal);
-  background: var(--wash);
+  border-color: var(--accent-ink);
+  background: #fff8dc;
 }
 
 .report-category-picker[open] > .report-category-picker-trigger::after {
@@ -102,26 +102,10 @@
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  border: 1px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--paper);
   box-shadow: var(--shadow);
-}
-
-.directory-filter-fields { width: min(16.25rem, calc(100vw - 2 * var(--map-inset) - 38px)); }
-.directory-filter-fields .report-category-picker { position: relative; z-index: 1; }
-.directory-filter-fields .report-category-picker-list {
-  position: absolute;
-  inset-block-start: calc(100% + .35rem);
-  inset-inline: 0;
-  margin: 0;
-}
-
-@media (max-height: 460px) {
-  .directory-filter-fields .report-category-picker-list {
-    inset-block-start: auto;
-    inset-block-end: calc(100% + .35rem);
-  }
 }
 
 .report-category-picker-option {
@@ -141,22 +125,22 @@
   cursor: pointer;
 }
 
-.report-category-picker-option:hover { background: var(--wash); }
+.report-category-picker-option:hover { background: #fff8dc; }
 
 .report-category-picker-option[aria-selected="true"] {
-  border-color: var(--edge);
-  background: var(--mint);
+  border-color: #e3bf4d;
+  background: #fff4c7;
   font-weight: 700;
 }
 
 .report-category-picker-trigger:focus-visible,
 .report-category-picker-option:focus-visible {
-  outline: 2px solid var(--teal);
+  outline: 2px solid var(--accent-ink);
   outline-offset: -2px;
 }
 
 .leaflet-marker-icon.report-signal-marker:focus-visible {
-  outline: 2px solid #075c70;
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -172,7 +156,7 @@
   content: '•';
   border: 1.5px solid #fff;
   border-radius: 50%;
-  background: #123c46;
+  background: var(--ink);
   color: #fff;
   font: 780 12px/1 system-ui, sans-serif;
 }

@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#02807d">
+    <meta name="theme-color" content="#0d1015">
     <meta name="description" content="Mapa de reclamos vecinales de Villa Gobernador Gálvez, Santa Fe. Base de Datos Nico Ramírez 2027.">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>ReclamosVGG · Villa Gobernador Gálvez</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="./styles.css?v=mensaje-1">
-    <link rel="stylesheet" href="./report-signals.css?v=selector-1">
+    <link rel="stylesheet" href="./styles.css?v=redisenio-1">
+    <link rel="stylesheet" href="./report-signals.css?v=redisenio-1">
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-    <script defer src="./app.js?v=selector-1"></script>
+    <script defer src="./app.js?v=redisenio-1"></script>
   </head>
   <body class="public-map-page">
     <header class="site-header">
@@ -32,14 +32,12 @@
       </div>
     </section>
 
-    <main class="map-view" aria-labelledby="city-name">
-      <div id="map" role="region" aria-label="Mapa interactivo de Villa Gobernador Gálvez"
-        aria-describedby="map-instructions"></div>
-      <p id="map-instructions" class="visually-hidden">Usá las flechas del teclado para desplazarte y las teclas más y menos para cambiar el nivel de zoom.</p>
-
-      <div class="city-card">
-        <p class="city-province">Santa Fe, Argentina</p>
-        <h2 id="city-name">Villa Gobernador Gálvez</h2>
+    <main class="map-workspace" aria-labelledby="city-name">
+      <aside class="workspace-panel" aria-label="Reclamos vecinales">
+        <div class="workspace-heading">
+          <p class="city-province">Santa Fe, Argentina</p>
+          <h2 id="city-name">Villa Gobernador Gálvez</h2>
+        </div>
         <div id="report-directory" class="report-directory" hidden>
           <div class="directory-actions">
             <details class="directory-filters">
@@ -69,50 +67,56 @@
           <a href="./privacidad.html">Cómo funciona y privacidad</a>
           <a href="https://vggmunicipalidad.gov.ar/tramite/128/reclamos/" target="_blank" rel="noopener noreferrer">Canales municipales</a>
         </nav>
-      </div>
+      </aside>
 
-      <div class="map-controls" role="group" aria-label="Controles del mapa">
-        <button id="reset-view" class="map-button reset-button" type="button"
-          aria-label="Volver a Villa Gobernador Gálvez" title="Volver a Villa Gobernador Gálvez" disabled>
-          <span class="target-icon" aria-hidden="true"></span>
-          <span class="reset-label" aria-hidden="true">Volver a Villa Gobernador Gálvez</span>
-        </button>
-        <div class="zoom-controls" role="group" aria-label="Zoom">
-          <button id="zoom-in" class="map-button zoom-button" type="button" aria-label="Acercar" title="Acercar" disabled>
-            <span class="zoom-icon plus" aria-hidden="true"></span>
-          </button>
-          <button id="zoom-out" class="map-button zoom-button" type="button" aria-label="Alejar" title="Alejar" disabled>
-            <span class="zoom-icon" aria-hidden="true"></span>
-          </button>
-        </div>
-      </div>
+      <div class="map-view">
+        <div id="map" role="region" aria-label="Mapa interactivo de Villa Gobernador Gálvez"
+          aria-describedby="map-instructions"></div>
+        <p id="map-instructions" class="visually-hidden">Usá las flechas del teclado para desplazarte y las teclas más y menos para cambiar el nivel de zoom.</p>
 
-      <div id="boundary-legend" class="map-legend" hidden>
-        <span class="map-legend-boundary"><span class="legend-swatch" aria-hidden="true"></span>Límite municipal</span>
-        <details class="sign-legend">
-          <summary>Colores del mapa</summary>
-          <ul class="sign-legend-list">
-            <li><span class="report-signal-badge report-signal-badge--key report-signal--roads" aria-hidden="true"></span>Calles y espacios públicos</li>
-            <li><span class="report-signal-badge report-signal-badge--key report-signal--risk" aria-hidden="true"></span>Seguridad y energía</li>
-            <li><span class="report-signal-badge report-signal-badge--key report-signal--services" aria-hidden="true"></span>Servicios y ambiente</li>
-            <li><span class="report-signal-badge report-signal-badge--key report-signal--lighting" aria-hidden="true"></span>Alumbrado y otros</li>
-          </ul>
-        </details>
-      </div>
-      <div id="report-crosshair" class="report-crosshair" aria-hidden="true" hidden></div>
-      <section id="report-location-panel" class="report-location-panel" aria-labelledby="report-location-title" hidden>
-        <h2 id="report-location-title">Marcá la ubicación</h2>
-        <p id="report-location-help">Elegí un punto dentro de Villa Gobernador Gálvez. Con el teclado, mové el mapa con las flechas y presioná Enter para marcar su centro.</p>
-        <p id="report-location-status" class="report-feedback" role="status"></p>
-        <div class="report-location-actions">
-          <button id="report-use-center" class="report-button report-secondary" type="button">Usar el centro del mapa</button>
-          <button id="report-use-gps" class="report-button report-secondary" type="button" hidden>Usar mi ubicación</button>
-          <button id="report-continue" class="report-button" type="button" disabled>Continuar</button>
-          <button id="report-cancel-location" class="report-button report-text-button" type="button">Cancelar</button>
+        <div class="map-controls" role="group" aria-label="Controles del mapa">
+          <button id="reset-view" class="map-button reset-button" type="button"
+            aria-label="Volver a Villa Gobernador Gálvez" title="Volver a Villa Gobernador Gálvez" disabled>
+            <span class="target-icon" aria-hidden="true"></span>
+            <span class="reset-label" aria-hidden="true">Volver a Villa Gobernador Gálvez</span>
+          </button>
+          <div class="zoom-controls" role="group" aria-label="Zoom">
+            <button id="zoom-in" class="map-button zoom-button" type="button" aria-label="Acercar" title="Acercar" disabled>
+              <span class="zoom-icon plus" aria-hidden="true"></span>
+            </button>
+            <button id="zoom-out" class="map-button zoom-button" type="button" aria-label="Alejar" title="Alejar" disabled>
+              <span class="zoom-icon" aria-hidden="true"></span>
+            </button>
+          </div>
         </div>
-      </section>
-      <p id="map-status" class="map-status" role="status"></p>
-      <noscript><p class="map-status">Activá JavaScript para ver el mapa.</p></noscript>
+
+        <div id="boundary-legend" class="map-legend" hidden>
+          <span class="map-legend-boundary"><span class="legend-swatch" aria-hidden="true"></span>Límite municipal</span>
+          <details class="sign-legend">
+            <summary>Colores del mapa</summary>
+            <ul class="sign-legend-list">
+              <li><span class="report-signal-badge report-signal-badge--key report-signal--roads" aria-hidden="true"></span>Calles y espacios públicos</li>
+              <li><span class="report-signal-badge report-signal-badge--key report-signal--risk" aria-hidden="true"></span>Seguridad y energía</li>
+              <li><span class="report-signal-badge report-signal-badge--key report-signal--services" aria-hidden="true"></span>Servicios y ambiente</li>
+              <li><span class="report-signal-badge report-signal-badge--key report-signal--lighting" aria-hidden="true"></span>Alumbrado y otros</li>
+            </ul>
+          </details>
+        </div>
+        <div id="report-crosshair" class="report-crosshair" aria-hidden="true" hidden></div>
+        <section id="report-location-panel" class="report-location-panel" aria-labelledby="report-location-title" hidden>
+          <h2 id="report-location-title">Marcá la ubicación</h2>
+          <p id="report-location-help">Elegí un punto dentro de Villa Gobernador Gálvez. Con el teclado, mové el mapa con las flechas y presioná Enter para marcar su centro.</p>
+          <p id="report-location-status" class="report-feedback" role="status"></p>
+          <div class="report-location-actions">
+            <button id="report-use-center" class="report-button report-secondary" type="button">Usar el centro del mapa</button>
+            <button id="report-use-gps" class="report-button report-secondary" type="button" hidden>Usar mi ubicación</button>
+            <button id="report-continue" class="report-button" type="button" disabled>Continuar</button>
+            <button id="report-cancel-location" class="report-button report-text-button" type="button">Cancelar</button>
+          </div>
+        </section>
+        <p id="map-status" class="map-status" role="status"></p>
+        <noscript><p class="map-status">Activá JavaScript para ver el mapa.</p></noscript>
+      </div>
     </main>
 
     <dialog id="report-dialog" class="report-dialog report-wizard" aria-labelledby="report-dialog-title">

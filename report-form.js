@@ -334,6 +334,7 @@ export function initializeReportForm(map, leaflet, boundary) {
     continueLocation.disabled = !candidatePoint;
     locationStatus.textContent = candidatePoint ? 'Podés mantener la ubicación marcada o elegir otra.' : '';
     setSelecting(true);
+    mapContainer.scrollIntoView({ block: 'nearest' });
     mapContainer.focus({ preventScroll: true });
   }
 
