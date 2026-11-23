@@ -132,7 +132,7 @@ async function initializeMap() {
   if (bounds) {
     try {
       const [{ initializeReportForm }, { initializeReportDirectory }, { initializeReportAddress }] = await Promise.all([
-        import('./report-form.js?v=redisenio-1'),
+        import('./report-form.js?v=titulo-reclamo-1'),
         import('./report-directory.js?v=redisenio-1'),
         import('./report-address.js?v=vecinos-2'),
       ]);

@@ -116,6 +116,7 @@ export function initializeReportForm(map, leaflet, boundary) {
   const cancelLocation = get('cancel-location');
   const dialog = get('dialog');
   const title = get('dialog-title');
+  const initialTitle = title.textContent;
   const closeButton = get('close');
   const form = get('form');
   const draftRestored = get('draft-restored');
@@ -378,7 +379,7 @@ export function initializeReportForm(map, leaflet, boundary) {
     formError.textContent = '';
     trackingCode.textContent = '';
     copyStatus.textContent = '';
-    title.textContent = 'Hacer un reclamo';
+    title.textContent = initialTitle;
     form.hidden = false;
     confirmation.hidden = true;
     selectedPoint = null;
