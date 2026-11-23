@@ -29,14 +29,14 @@ async function loadBoundary(map) {
   const mask = L.polygon([worldRing, ...polygonRings(geojson)], {
     interactive: false,
     stroke: false,
-    fillColor: '#21454c',
-    fillOpacity: 0.19,
+    fillColor: '#63b6aa',
+    fillOpacity: 0.20,
     fillRule: 'evenodd',
     smoothFactor: 0,
   });
   const outline = L.geoJSON(geojson, {
     interactive: false,
-    style: { color: '#007781', weight: 3, opacity: 1, fill: false, smoothFactor: 0 },
+    style: { color: '#02807d', weight: 3, opacity: 1, fill: false, smoothFactor: 0 },
   });
   const bounds = outline.getBounds();
   if (!bounds.isValid()) throw new Error('Las coordenadas del límite municipal no son válidas.');

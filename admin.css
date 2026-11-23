@@ -1,23 +1,33 @@
 .moderation-page {
   --panel-ink: #083c46;
   --panel-muted: #456267;
-  --panel-teal: #007a82;
-  --panel-edge: #c8d9d8;
-  --panel-paper: #fffefb;
-  --panel-orange: #ff7b29;
+  --panel-teal: #087d80;
+  --panel-edge: #a4dcd5;
+  --panel-paper: #fff;
+  --panel-orange: var(--signal-orange, #ff8a25);
   --panel-red: #b6342f;
-  --panel-blue: #287abd;
-  --panel-yellow: #f8c94c;
+  --panel-blue: #257dcb;
+  --panel-yellow: #ffd34c;
   min-height: 100vh;
   min-height: 100dvh;
   height: auto;
-  background: linear-gradient(165deg, #e5f2ee, #f8f8f2 50%);
+  background: linear-gradient(150deg, #c1f3e9, #e5faf4 42%, #fff9e6);
   color: var(--panel-ink);
 }
 
 .moderation-header { align-items: center; }
 .moderation-nav { display: flex; align-items: center; gap: 10px; margin-inline-start: auto; }
-.moderation-nav a { padding: 8px 4px; color: #effaf7; font-size: .88rem; }
+.moderation-nav a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f2fffb;
+  color: var(--panel-ink);
+  font-size: .88rem;
+}
+.moderation-nav a:hover { background: #cff5ec; }
 .moderation-nav a:focus-visible { outline: 2px solid var(--panel-yellow); outline-offset: 3px; }
 
 .moderation-main {
@@ -41,7 +51,7 @@
   border: 1px solid var(--panel-edge);
   border-radius: 13px;
   background: var(--panel-paper);
-  box-shadow: 0 4px 16px #083c4610;
+  box-shadow: 0 6px 20px #087d8017;
 }
 
 .moderation-login { max-width: 410px; border-top: 4px solid var(--panel-teal); }
@@ -80,18 +90,18 @@
   touch-action: manipulation;
 }
 
-.moderation-button:hover { background: #005f66; }
+.moderation-button:hover { background: #006c70; }
 .moderation-button:disabled { background: #e9efec; color: var(--panel-muted); cursor: default; }
 .moderation-button:focus-visible,
 .moderation-main :is(input, select):focus-visible { outline: 2px solid var(--panel-teal); outline-offset: 3px; }
 .moderation-secondary { border-color: #71939a; background: #fff; color: var(--panel-ink); }
-.moderation-secondary:hover { background: #e7f4ef; }
+.moderation-secondary:hover { background: #d9f7ee; }
 .moderation-danger-outline:not(:disabled) { border-color: var(--panel-red); background: #fff; color: var(--panel-red); }
 .moderation-danger-outline:not(:disabled):hover { background: #fae7e3; }
 .moderation-danger { background: var(--panel-red); }
 .moderation-danger:hover { background: #922821; }
-.moderation-logout { border-color: #84b1b2; background: transparent; color: #effaf7; }
-.moderation-logout:hover { background: #1a5259; }
+.moderation-logout { border-color: #f2fffb; background: #f2fffb; color: var(--panel-ink); }
+.moderation-logout:hover { background: #cff5ec; }
 .moderation-logout:focus-visible { outline-color: var(--panel-yellow); }
 
 .moderation-toolbar {
@@ -126,11 +136,11 @@
 }
 
 .moderation-status::before { content: ""; width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 50%; background: var(--status-dot, currentColor); }
-.moderation-status[data-status="pending_review"] { --status-dot: var(--panel-yellow); background: #fff2c4; color: #633d00; }
-.moderation-status[data-status="published"] { --status-dot: var(--panel-teal); background: #d7f0eb; color: #0d5058; }
-.moderation-status[data-status="in_progress"] { --status-dot: var(--panel-blue); background: #e1f0fc; color: #15466b; }
-.moderation-status[data-status="resolved"] { --status-dot: #419375; background: #e5f2eb; color: #245b47; }
-.moderation-status[data-status="rejected"] { --status-dot: var(--panel-red); background: #fae7e3; color: #792622; }
+.moderation-status[data-status="pending_review"] { --status-dot: var(--panel-yellow); background: #ffecae; color: #633d00; }
+.moderation-status[data-status="published"] { --status-dot: var(--panel-teal); background: #b9f1e5; color: #0d5058; }
+.moderation-status[data-status="in_progress"] { --status-dot: var(--panel-blue); background: #d0ebff; color: #15466b; }
+.moderation-status[data-status="resolved"] { --status-dot: #419375; background: #d4f5df; color: #245b47; }
+.moderation-status[data-status="rejected"] { --status-dot: var(--panel-red); background: #ffe1dc; color: #792622; }
 
 .moderation-description { margin: 14px 0; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .moderation-contact { grid-column: 1 / -1; overflow-wrap: anywhere; }
