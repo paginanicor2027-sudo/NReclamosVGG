@@ -592,7 +592,7 @@ body {
 
 .welcome-dialog {
   --welcome-inset: clamp(14px, 4vw, 30px);
-  width: min(100% - 24px, 680px);
+  width: min(100% - 24px, 800px);
   overflow: hidden;
   border-color: #3c4451;
   border-top-color: var(--campaign-yellow);
@@ -613,20 +613,37 @@ body {
 }
 
 .welcome-heading {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: clamp(8px, 2vw, 16px);
+  gap: clamp(6px, 2vw, 14px);
   margin-bottom: 10px;
 }
 
-.welcome-heading img { width: clamp(52px, 11vw, 72px); height: auto; }
+.welcome-heading img { width: clamp(64px, 12vw, 96px); height: auto; }
 .welcome-heading h2 {
   color: var(--campaign-yellow);
-  font-size: clamp(1.6rem, 5.5vw, 2.6rem);
+  font-size: clamp(1.5rem, 5.6vw, 3.1rem);
   line-height: 1.1;
+  overflow-wrap: anywhere;
   text-transform: uppercase;
 }
+
+.welcome-heading h2 strong { color: var(--paper); font-weight: inherit; }
 .welcome-heading h2:focus { outline: none; }
+
+.welcome-motto {
+  display: flex;
+  align-items: center;
+  gap: .25em;
+  margin: 0;
+  padding-inline-start: clamp(9px, 1.6vw, 15px);
+  border-inline-start: 4px solid var(--paper);
+  color: var(--paper);
+  font: 800 clamp(.91rem, 2.45vw, 1.39rem)/1 Arial, sans-serif;
+}
+
+.welcome-motto strong { font-size: 2.4em; font-weight: inherit; line-height: .98; }
 .welcome-content > p { margin: 0 0 12px; }
 .welcome-credit { color: var(--campaign-yellow); }
 
@@ -649,7 +666,7 @@ body {
 .welcome-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .welcome-dismiss { border-color: #495361; background: #242b36; color: var(--paper); }
 .welcome-dismiss:hover { background: #343b48; }
-.welcome-close { flex: 0 0 44px; align-self: flex-start; margin-inline-start: auto; padding: 0; border-radius: 50%; font-size: 1.45rem; }
+.welcome-close { width: 44px; padding: 0; border-radius: 50%; font-size: 1.45rem; }
 .welcome-report { background: var(--campaign-yellow); }
 .welcome-dialog .report-button:focus-visible { outline-color: var(--campaign-yellow); }
 
@@ -763,6 +780,12 @@ body {
   .directory-filters:not([open]) { grid-column: auto; }
   .directory-filters > summary, .directory-actions > .directory-track-button { padding-inline: 6px; font-size: .79rem; }
   .map-view { min-height: clamp(320px, 49dvh, 500px); }
+}
+
+@media (max-width: 720px) {
+  .welcome-heading { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .welcome-motto { grid-row: 2; grid-column: 2 / -1; }
+  .welcome-close { grid-row: 1; grid-column: 3; }
 }
 
 @media (max-width: 660px) {
