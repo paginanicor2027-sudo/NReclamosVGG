@@ -1,4 +1,5 @@
 import { reportsConfig } from './reports-config.js';
+import { reportEndpoint, reportHeaders } from './report-client.js';
 
 const maxDescriptionLength = 400;
 const serviceErrors = {
@@ -9,29 +10,10 @@ const serviceErrors = {
   timeout: 'El servicio tardó demasiado en responder. Tus datos siguen en el formulario. Volvé a intentar.',
 };
 
-function isLoopback(hostname) {
-  return ['localhost', '127.0.0.1', '[::1]'].includes(hostname);
-}
-
-function getEndpoint() {
-  const endpoint = reportsConfig.endpoint;
-  if (!endpoint) return null;
-
-  const isLocal = isLoopback(window.location.hostname);
-  const url = new URL(endpoint, window.location.href);
-  const isLocalHttp = isLocal && url.protocol === 'http:' && isLoopback(url.hostname);
-  if (url.protocol !== 'https:' && !isLocalHttp) return null;
-  return url;
-}
-
 async function postReport(endpoint, report) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
-  const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
-
-  if (reportsConfig.publishableKey?.startsWith('sb_publishable_')) {
-    headers.apikey = reportsConfig.publishableKey;
-  }
+  const headers = { ...reportHeaders(), 'Content-Type': 'application/json' };
 
   try {
     const response = await fetch(endpoint, {
@@ -58,7 +40,7 @@ async function postReport(endpoint, report) {
 }
 
 export function initializeReportForm(map, leaflet) {
-  const endpoint = getEndpoint();
+  const endpoint = reportEndpoint(reportsConfig.endpoint);
   if (!endpoint) return;
 
   const trigger = document.getElementById('report-trigger');

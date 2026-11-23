@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#10273a">
     <meta name="description" content="Mapa interactivo de Villa Gobernador Gálvez, Santa Fe. Un proyecto de Nicolás Ramírez.">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>NReclamosVGG · Villa Gobernador Gálvez</title>
+    <title>ReclamosVGG · Villa Gobernador Gálvez</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
     <link rel="stylesheet" href="./styles.css">
@@ -18,7 +18,7 @@
     <header class="site-header">
       <span class="brand-mark" aria-hidden="true"><span class="pin-icon"></span></span>
       <div class="site-brand">
-        <span class="site-name">NReclamosVGG</span>
+        <span class="site-name">ReclamosVGG</span>
         <span class="site-credit">Proyecto de Nicolás Ramírez</span>
       </div>
       <button id="report-trigger" class="report-button report-trigger" type="button" hidden>Hacer un reclamo</button>
@@ -32,6 +32,21 @@
       <div class="city-card">
         <p class="city-province">Santa Fe, Argentina</p>
         <h1 id="city-name">Villa Gobernador Gálvez</h1>
+        <div id="report-directory" class="report-directory" hidden>
+          <div class="directory-actions">
+            <details class="directory-filters">
+              <summary>Filtros</summary>
+              <div class="directory-filter-fields">
+                <label for="public-category">Categoría</label>
+                <select id="public-category"></select>
+                <label for="public-status">Estado</label>
+                <select id="public-status"></select>
+              </div>
+            </details>
+            <button id="tracking-trigger" class="directory-track-button" type="button">Consultar seguimiento</button>
+          </div>
+          <p id="directory-status" class="directory-status" role="status"></p>
+        </div>
       </div>
 
       <div class="map-controls" role="group" aria-label="Controles del mapa">
@@ -106,6 +121,23 @@
           <p id="report-tracking-code" class="report-tracking-code"></p>
           <button id="report-new" class="report-button" type="button">Hacer otro reclamo</button>
         </div>
+      </div>
+    </dialog>
+
+    <dialog id="tracking-dialog" class="report-dialog" aria-labelledby="tracking-title">
+      <div class="report-dialog-body">
+        <header class="report-dialog-header">
+          <h2 id="tracking-title">Consultar seguimiento</h2>
+          <button id="tracking-close" class="report-button report-text-button" type="button">Cerrar</button>
+        </header>
+        <form id="tracking-form" class="tracking-form" novalidate>
+          <div class="report-fields">
+            <label for="tracking-input">Código de seguimiento</label>
+            <input id="tracking-input" name="trackingNumber" type="text" placeholder="VGG-…" maxlength="24" autocapitalize="characters" autocomplete="off" spellcheck="false" required>
+          </div>
+          <button id="tracking-submit" class="report-button" type="submit">Consultar</button>
+          <div id="tracking-result" class="tracking-result" role="status"></div>
+        </form>
       </div>
     </dialog>
   </body>

@@ -130,10 +130,14 @@ async function initializeMap() {
   addStreetMap(map, bounds);
   if (bounds) {
     try {
-      const { initializeReportForm } = await import('./report-form.js');
+      const [{ initializeReportForm }, { initializeReportDirectory }] = await Promise.all([
+        import('./report-form.js'),
+        import('./report-directory.js'),
+      ]);
       initializeReportForm(map, L);
+      initializeReportDirectory(map, L);
     } catch (error) {
-      console.warn('No se pudo iniciar el formulario de reclamos.', error);
+      console.warn('No se pudieron iniciar las funciones de reclamos.', error);
     }
   }
 }

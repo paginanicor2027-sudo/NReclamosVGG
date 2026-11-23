@@ -1,5 +1,7 @@
-// Only public settings belong in this file. A blank endpoint disables reports on the public site.
+// Only public settings belong in this file.
 export const reportsConfig = {
   endpoint: '',
+  directoryEndpoint: '',
+  supabaseUrl: '',
   publishableKey: '',
 };

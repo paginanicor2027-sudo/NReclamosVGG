@@ -3,12 +3,14 @@ import { mkdir, readdir, readFile } from 'node:fs/promises';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { PGlite } from '@electric-sql/pglite';
+import { createReportDirectoryHandler } from '../supabase/functions/report-directory/handler.ts';
 import { createReportHandler } from '../supabase/functions/submit-report/handler.ts';
+import { createPreviewModeration, previewAuthSchema } from './preview-moderation.mjs';
 
 const root = new URL('../', import.meta.url);
 const port = Number(process.env.PORT ?? '4173');
 const origin = `http://127.0.0.1:${port}`;
-const basePath = '/NReclamosVGG';
+const basePaths = ['/ReclamosVGG/', '/NReclamosVGG/'];
 const dataDirectory = new URL('.local/', root);
 const migrations = new URL('supabase/migrations/', root);
 const boundary = JSON.parse(await readFile(new URL('data/villa-gobernador-galvez.geojson', root), 'utf8'));
@@ -26,6 +28,7 @@ await db.exec(`
   create schema if not exists preview;
   create table if not exists preview.migrations (name text primary key);
 `);
+await db.exec(previewAuthSchema);
 
 const { rows: appliedMigrations } = await db.query('select name from preview.migrations');
 const appliedNames = new Set(appliedMigrations.map(({ name }) => name));
@@ -38,35 +41,71 @@ for (const file of (await readdir(migrations)).sort()) {
   });
 }
 
+function reportRpc(sql, parameters) {
+  return db.transaction(async (transaction) => {
+    await transaction.exec('set local role service_role');
+    const { rows: [row] } = await transaction.query(sql, parameters);
+    return row.result;
+  });
+}
+
 const handleReport = createReportHandler({
   allowedOrigins: [origin],
   boundary,
-  store: ({ requestId, category, description, latitude, longitude }) => db.transaction(async (transaction) => {
-    await transaction.exec('set local role service_role');
-    const { rows: [row] } = await transaction.query(
+  store: ({ requestId, category, description, latitude, longitude }) => reportRpc(
       'select public.submit_report($1::uuid, $2::text, $3::text, $4::double precision, $5::double precision) as result',
       [requestId, category, description, latitude, longitude],
-    );
-    return row.result;
-  }),
+  ),
 });
+
+const handleDirectory = createReportDirectoryHandler({
+  allowedOrigins: [origin],
+  store: {
+    list: ({ category, status, offset }) => reportRpc(
+      'select public.list_published_reports($1::text, $2::text, $3::integer) as result',
+      [category, status, offset],
+    ),
+    track: (trackingNumber) => reportRpc('select public.track_report($1::text) as result', [trackingNumber]),
+  },
+});
+
+const handleModeration = await createPreviewModeration(db);
+const routes = new Map([
+  ['/api/reclamos', handleReport],
+  ['/api/reclamos-publicados', handleDirectory],
+  ['/auth/v1/token', handleModeration],
+  ['/rest/v1/report_moderators', handleModeration],
+  ['/rest/v1/reports', handleModeration],
+]);
 
 const assetTypes = new Map([
   ['index.html', 'text/html; charset=utf-8'],
   ['styles.css', 'text/css; charset=utf-8'],
   ['app.js', 'text/javascript; charset=utf-8'],
+  ['admin.html', 'text/html; charset=utf-8'],
+  ['admin.css', 'text/css; charset=utf-8'],
+  ['admin.js', 'text/javascript; charset=utf-8'],
+  ['report-client.js', 'text/javascript; charset=utf-8'],
+  ['report-directory.js', 'text/javascript; charset=utf-8'],
   ['report-form.js', 'text/javascript; charset=utf-8'],
   ['reports-config.js', 'text/javascript; charset=utf-8'],
   ['data/villa-gobernador-galvez.geojson', 'application/geo+json'],
 ]);
 
+const previewConfig = `export const reportsConfig = ${JSON.stringify({
+  endpoint: '/api/reclamos',
+  directoryEndpoint: '/api/reclamos-publicados',
+  supabaseUrl: origin,
+})};\n`;
+
 const server = createServer(async (incoming, outgoing) => {
   const url = new URL(incoming.url, origin);
   outgoing.setHeader('cache-control', 'no-store');
 
-  if (url.pathname === '/api/reclamos') {
-    const hasBody = !['GET', 'HEAD'].includes(incoming.method);
-    const result = await handleReport(new Request(url, {
+  const route = routes.get(url.pathname);
+  if (route) {
+    const hasBody = incoming.method === 'POST' || incoming.method === 'PATCH';
+    const result = await route(new Request(url, {
       method: incoming.method,
       headers: incoming.headers,
       body: hasBody ? Readable.toWeb(incoming) : null,
@@ -77,17 +116,15 @@ const server = createServer(async (incoming, outgoing) => {
     return;
   }
 
-  const pathname = url.pathname.startsWith(`${basePath}/`) ? url.pathname.slice(basePath.length) : url.pathname;
-  const file = pathname.slice(1) || 'index.html';
+  const basePath = basePaths.find((base) => url.pathname.startsWith(base));
+  const file = url.pathname.slice(basePath?.length ?? 1) || 'index.html';
   if (!assetTypes.has(file) || !['GET', 'HEAD'].includes(incoming.method)) {
     outgoing.writeHead(404).end();
     return;
   }
 
   try {
-    const content = file === 'reports-config.js'
-      ? "export const reportsConfig = { endpoint: '/api/reclamos' };\n"
-      : await readFile(new URL(file, root));
+    const content = file === 'reports-config.js' ? previewConfig : await readFile(new URL(file, root));
     outgoing.writeHead(200, { 'content-type': assetTypes.get(file) });
     outgoing.end(incoming.method === 'HEAD' ? undefined : content);
   } catch (error) {
@@ -96,4 +133,4 @@ const server = createServer(async (incoming, outgoing) => {
   }
 });
 
-server.listen(port, '127.0.0.1', () => console.log(`${origin}${basePath}/`));
+server.listen(port, '127.0.0.1', () => console.log(`${origin}${basePaths[0]}`));

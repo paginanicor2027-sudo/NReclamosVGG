@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10273a">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <title>Moderación de reclamos · ReclamosVGG</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./admin.css">
+    <script type="module" src="./admin.js"></script>
+  </head>
+  <body class="moderation-page">
+    <header class="site-header moderation-header">
+      <span class="brand-mark" aria-hidden="true"><span class="pin-icon"></span></span>
+      <div class="site-brand">
+        <span class="site-name">ReclamosVGG</span>
+        <span class="site-credit">Proyecto de Nicolás Ramírez</span>
+      </div>
+      <nav class="moderation-nav" aria-label="Navegación">
+        <a href="./">Volver al mapa</a>
+        <button id="moderation-logout" class="moderation-button moderation-logout" type="button" hidden>Cerrar sesión</button>
+      </nav>
+    </header>
+
+    <main class="moderation-main" aria-labelledby="moderation-title">
+      <h1 id="moderation-title" tabindex="-1">Moderación de reclamos</h1>
+      <section id="moderation-login" class="moderation-card moderation-login" aria-labelledby="moderation-login-title">
+        <h2 id="moderation-login-title">Ingresá a tu cuenta</h2>
+        <form id="moderation-login-form" method="post">
+          <fieldset id="moderation-login-fields" disabled>
+            <label for="moderation-email">Correo electrónico</label>
+            <input id="moderation-email" name="email" type="email" autocomplete="username" required>
+            <label for="moderation-password">Contraseña</label>
+            <input id="moderation-password" name="password" type="password" autocomplete="current-password" required>
+            <button id="moderation-login-submit" class="moderation-button" type="submit">Ingresar</button>
+          </fieldset>
+        </form>
+        <p id="moderation-login-message" class="moderation-feedback" role="status"></p>
+        <noscript><p>Activá JavaScript para usar el panel.</p></noscript>
+      </section>
+
+      <section id="moderation-workspace" aria-labelledby="moderation-reports-title" hidden>
+        <div class="moderation-toolbar">
+          <h2 id="moderation-reports-title" tabindex="-1">Reclamos</h2>
+          <div class="moderation-toolbar-actions">
+            <label for="moderation-filter">Estado</label>
+            <select id="moderation-filter">
+              <option value="">Todos</option>
+              <option value="pending_review" selected>Pendientes de revisión</option>
+              <option value="published">Publicados</option>
+              <option value="in_progress">En seguimiento</option>
+              <option value="resolved">Resueltos</option>
+              <option value="rejected">Rechazados</option>
+            </select>
+            <button id="moderation-refresh" class="moderation-button moderation-secondary" type="button">Actualizar lista</button>
+          </div>
+        </div>
+        <p id="moderation-list-message" class="moderation-feedback" role="status"></p>
+        <p id="moderation-action-message" class="moderation-feedback" role="status"></p>
+        <div id="moderation-reports" class="moderation-reports"></div>
+        <button id="moderation-more" class="moderation-button moderation-secondary moderation-more" type="button" hidden>Cargar más reclamos</button>
+      </section>
+    </main>
+
+    <template id="moderation-report-template">
+      <article class="moderation-card moderation-report" tabindex="-1">
+        <header class="moderation-report-header">
+          <div>
+            <h3 data-category></h3>
+            <p class="moderation-tracking" data-tracking></p>
+          </div>
+          <span class="moderation-status" data-status></span>
+        </header>
+        <p class="moderation-description" data-description></p>
+        <dl class="moderation-metadata">
+          <div><dt>Ubicación</dt><dd data-location></dd></div>
+          <div><dt>Recibido</dt><dd data-created></dd></div>
+          <div><dt>Actualizado</dt><dd data-updated></dd></div>
+        </dl>
+        <form class="moderation-transition" data-transition>
+          <label>
+            Nuevo estado
+            <select data-target>
+              <option value="">Elegí un estado</option>
+            </select>
+          </label>
+          <button class="moderation-button" type="submit" disabled>Guardar estado</button>
+        </form>
+        <p class="moderation-feedback moderation-row-error" data-error role="alert"></p>
+      </article>
+    </template>
+  </body>
+</html>

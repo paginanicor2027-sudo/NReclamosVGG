@@ -1,3 +1,4 @@
+import { readJsonBody } from "../_shared/json-body.ts";
 import { isInsideMunicipality, type MunicipalBoundary } from "./boundary.ts";
 
 const categories = [
@@ -35,38 +36,6 @@ type ErrorCode =
   | "outside_municipality"
   | "request_conflict"
   | "service_unavailable";
-
-async function readReport(request: Request): Promise<ReportSubmission | null> {
-  const contentType = request.headers.get("content-type")?.split(";")[0].trim()
-    .toLowerCase();
-  if (contentType !== "application/json" || !request.body) {
-    return null;
-  }
-
-  const reader = request.body.getReader();
-  const decoder = new TextDecoder("utf-8", { fatal: true });
-  let body = "";
-  let bodyBytes = 0;
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      bodyBytes += value.byteLength;
-      if (bodyBytes > maxBodyBytes) {
-        await reader.cancel();
-        return null;
-      }
-      body += decoder.decode(value, { stream: true });
-    }
-    return validateReport(JSON.parse(body + decoder.decode()));
-  } catch {
-    return null;
-  } finally {
-    reader.releaseLock();
-  }
-}
 
 function validateReport(input: unknown): ReportSubmission | null {
   if (typeof input !== "object" || input === null) {
@@ -143,7 +112,7 @@ export function createReportHandler(
       return error(405, "invalid_request");
     }
 
-    const report = await readReport(request);
+    const report = validateReport(await readJsonBody(request, maxBodyBytes));
     if (!report) {
       return error(400, "invalid_request");
     }

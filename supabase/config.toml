@@ -1,4 +1,7 @@
-project_id = "nreclamosvgg"
+project_id = "reclamosvgg"
 
 [functions.submit-report]
+verify_jwt = false
+
+[functions.report-directory]
 verify_jwt = false

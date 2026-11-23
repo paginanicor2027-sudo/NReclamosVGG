@@ -104,6 +104,50 @@ body {
 .city-province { margin: 0 0 4px; color: var(--quiet); font-size: .78rem; font-weight: 600; }
 .city-card h1 { margin: 0; font-size: clamp(1.18rem, 2.4vw, 1.65rem); line-height: 1.15; letter-spacing: -.033em; }
 
+.report-directory { margin-top: 8px; pointer-events: auto; }
+.directory-actions { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 4px 8px; }
+.directory-filters > summary, .directory-track-button {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background: #f2f7f8;
+  color: var(--ink);
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.directory-track-button { background: var(--paper); color: var(--teal); }
+.directory-filters > summary:hover, .directory-track-button:hover { background: #e1f4ef; }
+.directory-filters > summary:focus-visible, .directory-track-button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.directory-filter-fields { display: grid; gap: 5px; margin-top: 9px; font-size: .8rem; }
+.directory-filter-fields label { font-weight: 650; }
+.directory-filter-fields select, #tracking-input {
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 1px solid var(--edge);
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+.directory-status { margin: 7px 0 0; color: var(--quiet); font-size: .78rem; }
+.tracking-form { display: grid; gap: 12px; margin-top: 16px; }
+.tracking-form > .report-button { justify-self: start; }
+.tracking-result { font-weight: 650; }
+.report-pin {
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #007c79;
+  box-shadow: 0 1px 5px #173548a0;
+}
+.report-pin--in_progress { background: #986312; }
+.report-pin--resolved { background: #466b53; }
+.report-popup { min-width: 155px; overflow-wrap: anywhere; }
+.report-popup p { margin: 5px 0; }
+.report-popup small { color: var(--quiet); }
+
 .map-controls {
   position: absolute;
   z-index: 2;
