@@ -3,22 +3,23 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#10273a">
+    <meta name="theme-color" content="#083c46">
     <meta name="description" content="Mapa interactivo de Villa Gobernador Gálvez, Santa Fe. Un proyecto de Nicolás Ramírez.">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>ReclamosVGG · Villa Gobernador Gálvez</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="./styles.css?v=vecinos-2">
+    <link rel="stylesheet" href="./styles.css?v=senales-1">
+    <link rel="stylesheet" href="./report-signals.css?v=senales-1">
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-    <script defer src="./app.js?v=vecinos-2"></script>
+    <script defer src="./app.js?v=senales-1"></script>
   </head>
   <body>
     <header class="site-header">
       <span class="brand-mark" aria-hidden="true"><span class="pin-icon"></span></span>
       <div class="site-brand">
-        <span class="site-name">ReclamosVGG</span>
+        <span class="site-name">Reclamos<strong>VGG</strong></span>
         <span class="site-credit">Proyecto de Nicolás Ramírez</span>
       </div>
       <button id="report-trigger" class="report-button report-trigger" type="button" hidden>Hacer un reclamo</button>
@@ -80,8 +81,16 @@
       </div>
 
       <div id="boundary-legend" class="map-legend" hidden>
-        <span class="legend-swatch" aria-hidden="true"></span>
-        <span>Límite municipal</span>
+        <span class="map-legend-boundary"><span class="legend-swatch" aria-hidden="true"></span>Límite municipal</span>
+        <details class="sign-legend">
+          <summary>Colores del mapa</summary>
+          <ul class="sign-legend-list">
+            <li><span class="report-signal-badge report-signal-badge--key report-signal--roads" aria-hidden="true"><span class="report-signal-glyph">V</span></span>Calles y espacios públicos</li>
+            <li><span class="report-signal-badge report-signal-badge--key report-signal--risk" aria-hidden="true"><span class="report-signal-glyph">!</span></span>Seguridad y energía</li>
+            <li><span class="report-signal-badge report-signal-badge--key report-signal--services" aria-hidden="true"><span class="report-signal-glyph">S</span></span>Servicios y ambiente</li>
+            <li><span class="report-signal-badge report-signal-badge--key report-signal--lighting" aria-hidden="true"><span class="report-signal-glyph">•</span></span>Alumbrado y otros</li>
+          </ul>
+        </details>
       </div>
       <div id="report-crosshair" class="report-crosshair" aria-hidden="true" hidden></div>
       <section id="report-location-panel" class="report-location-panel" aria-labelledby="report-location-title" hidden>

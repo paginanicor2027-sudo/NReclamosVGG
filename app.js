@@ -29,14 +29,14 @@ async function loadBoundary(map) {
   const mask = L.polygon([worldRing, ...polygonRings(geojson)], {
     interactive: false,
     stroke: false,
-    fillColor: '#243f50',
-    fillOpacity: 0.23,
+    fillColor: '#21454c',
+    fillOpacity: 0.19,
     fillRule: 'evenodd',
     smoothFactor: 0,
   });
   const outline = L.geoJSON(geojson, {
     interactive: false,
-    style: { color: '#007c79', weight: 3, opacity: 1, fill: false, smoothFactor: 0 },
+    style: { color: '#007781', weight: 3, opacity: 1, fill: false, smoothFactor: 0 },
   });
   const bounds = outline.getBounds();
   if (!bounds.isValid()) throw new Error('Las coordenadas del límite municipal no son válidas.');
@@ -133,7 +133,7 @@ async function initializeMap() {
     try {
       const [{ initializeReportForm }, { initializeReportDirectory }, { initializeReportAddress }] = await Promise.all([
         import('./report-form.js?v=vecinos-2'),
-        import('./report-directory.js?v=vecinos-2'),
+        import('./report-directory.js?v=senales-1'),
         import('./report-address.js?v=vecinos-2'),
       ]);
       const reportForm = initializeReportForm(map, L, boundary.geojson);

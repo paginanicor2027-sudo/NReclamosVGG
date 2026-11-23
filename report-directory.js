@@ -2,6 +2,9 @@ import { reportsConfig } from './reports-config.js?v=vecinos-2';
 import { formatReportDate, publicStatuses, reportCategories, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=vecinos-2';
 
 const publicIdPattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+const roadwayCategories = new Set(['baches', 'arbolado', 'espacios_publicos', 'transito', 'veredas']);
+const riskCategories = new Set(['seguridad', 'gas', 'electricidad', 'cableado']);
+const signalGlyphs = { roads: 'V', risk: '!', services: 'S', lighting: '•' };
 
 function addOptions(select, defaultLabel, labels, values) {
   select.add(new Option(defaultLabel, ''));
@@ -13,6 +16,25 @@ function appendText(parent, tag, text, className = '') {
   element.className = className;
   element.textContent = text;
   parent.append(element);
+}
+
+function signalIcon(leaflet, category, status) {
+  let family = 'services';
+  if (roadwayCategories.has(category)) family = 'roads';
+  else if (riskCategories.has(category)) family = 'risk';
+  else if (category === 'luminarias' || category === 'otros') family = 'lighting';
+
+  const badge = document.createElement('span');
+  badge.className = `report-signal-badge report-signal--${family}`;
+  badge.setAttribute('aria-hidden', 'true');
+  appendText(badge, 'span', signalGlyphs[family], 'report-signal-glyph');
+  return leaflet.divIcon({
+    className: `report-signal-marker report-signal-marker--${status}`,
+    html: badge,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -19],
+  });
 }
 
 function markerPopup(report, endpoint) {
@@ -170,12 +192,12 @@ function initializeMapReports(endpoint, map, leaflet) {
         if (!report || !Object.hasOwn(reportCategories, report.category) || !publicStatuses.includes(report.status) ||
           !Number.isFinite(report.latitude) || !Number.isFinite(report.longitude) || typeof report.description !== 'string') continue;
         const label = `${reportCategories[report.category]} · ${reportStatuses[report.status]}`;
-        const icon = leaflet.divIcon({
-          className: `report-pin report-pin--${report.status}`,
-          iconSize: [20, 20],
-        });
-        const marker = leaflet.marker([report.latitude, report.longitude], { icon, title: label })
-          .bindPopup(() => markerPopup(report, endpoint)).addTo(markers);
+        const marker = leaflet.marker([report.latitude, report.longitude], {
+          icon: signalIcon(leaflet, report.category, report.status),
+          title: label,
+        }).bindPopup(() => markerPopup(report, endpoint));
+        marker.on('add', () => marker.getElement()?.setAttribute('aria-label', label));
+        marker.addTo(markers);
         const searchable = normalizeSearch([reportCategories[report.category], report.description, report.locationLabel]
           .filter(Boolean).join(' '));
         entries.push({ report, marker, searchable });

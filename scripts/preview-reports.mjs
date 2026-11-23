@@ -87,6 +87,7 @@ const routes = workerUrl ? new Map() : await createLocalRoutes();
 const assetTypes = new Map([
   ['index.html', 'text/html; charset=utf-8'],
   ['styles.css', 'text/css; charset=utf-8'],
+  ['report-signals.css', 'text/css; charset=utf-8'],
   ['app.js', 'text/javascript; charset=utf-8'],
   ['admin.html', 'text/html; charset=utf-8'],
   ['admin.css', 'text/css; charset=utf-8'],
@@ -97,6 +98,7 @@ const assetTypes = new Map([
   ['report-address.js', 'text/javascript; charset=utf-8'],
   ['privacidad.html', 'text/html; charset=utf-8'],
   ['reports-config.js', 'text/javascript; charset=utf-8'],
+  ['assets/fondo-deportistas.jpg', 'image/jpeg'],
   ['data/villa-gobernador-galvez.geojson', 'application/geo+json'],
 ]);
 
