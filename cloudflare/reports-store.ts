@@ -1,4 +1,5 @@
 import type {
+  PublicStatus,
   PublishedReport,
   ReportDirectoryStore,
   TrackedReport,
@@ -231,5 +232,13 @@ export function createReportsStore(db: ReportsDatabase) {
     }
   }
 
-  return { submit, directory, getPublishedReport, getReportPhoto, listForModeration, updateStatus };
+  async function deletePublicReport(requestId: string, expected: PublicStatus) {
+    return db.prepare(`
+      delete from reports
+      where request_id = ? and status = ? and ${publicStatusesSql}
+      returning request_id
+    `).bind(requestId, expected).first<Pick<ModerationReport, "request_id">>();
+  }
+
+  return { submit, directory, getPublishedReport, getReportPhoto, listForModeration, updateStatus, deletePublicReport };
 }

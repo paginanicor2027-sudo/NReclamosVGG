@@ -8,8 +8,8 @@
     <meta name="referrer" content="no-referrer">
     <title>Moderación de reclamos · ReclamosVGG</title>
     <link rel="stylesheet" href="./styles.css?v=vecinos-2">
-    <link rel="stylesheet" href="./admin.css?v=vecinos-2">
-    <script type="module" src="./admin.js?v=vecinos-2"></script>
+    <link rel="stylesheet" href="./admin.css?v=eliminar-1">
+    <script type="module" src="./admin.js?v=eliminar-1"></script>
   </head>
   <body class="moderation-page">
     <header class="site-header moderation-header">
@@ -64,6 +64,19 @@
       </section>
     </main>
 
+    <dialog id="moderation-delete-dialog" class="moderation-card moderation-confirmation"
+      aria-labelledby="moderation-delete-title" aria-describedby="moderation-delete-description">
+      <form method="dialog">
+        <h2 id="moderation-delete-title">¿Eliminar este reclamo?</h2>
+        <p id="moderation-delete-description">Se borrará definitivamente del panel y del mapa. Su código de seguimiento dejará de funcionar.</p>
+        <p id="moderation-delete-code" class="moderation-tracking"></p>
+        <div class="moderation-confirmation-actions">
+          <button class="moderation-button moderation-secondary" type="submit" value="cancel" autofocus>Cancelar</button>
+          <button class="moderation-button moderation-danger" type="submit" value="delete">Eliminar definitivamente</button>
+        </div>
+      </form>
+    </dialog>
+
     <template id="moderation-report-template">
       <article class="moderation-card moderation-report" tabindex="-1">
         <header class="moderation-report-header">
@@ -92,6 +105,7 @@
             </select>
           </label>
           <button class="moderation-button" type="submit" disabled>Guardar estado</button>
+          <button class="moderation-button moderation-danger-outline" type="button" data-delete hidden>Eliminar</button>
         </form>
         <p class="moderation-feedback moderation-row-error" data-error role="alert"></p>
       </article>

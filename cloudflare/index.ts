@@ -1,6 +1,6 @@
 import municipalBoundary from "../data/villa-gobernador-galvez.geojson";
 import { readJsonBody } from "../supabase/functions/_shared/json-body.ts";
-import { createReportDirectoryHandler, isOffset, type TrackingStatus } from "../supabase/functions/report-directory/handler.ts";
+import { createReportDirectoryHandler, isOffset, isPublicStatus, type TrackingStatus } from "../supabase/functions/report-directory/handler.ts";
 import { createReportHandler } from "../supabase/functions/submit-report/handler.ts";
 import type { MunicipalBoundary } from "../supabase/functions/submit-report/boundary.ts";
 import { isWorkerCategory } from "./categories.ts";
@@ -100,7 +100,7 @@ async function moderate(request: Request, url: URL, env: Environment, allowedOri
     headers.set("access-control-allow-origin", origin);
   }
   if (request.method === "OPTIONS") {
-    headers.set("access-control-allow-methods", "GET, POST, PATCH, OPTIONS");
+    headers.set("access-control-allow-methods", "GET, POST, PATCH, DELETE, OPTIONS");
     headers.set("access-control-allow-headers", "authorization, content-type, apikey, prefer");
     return new Response(null, { status: 204, headers });
   }
@@ -139,15 +139,23 @@ async function moderate(request: Request, url: URL, env: Environment, allowedOri
       return respond(await store.listForModeration({ status: expected, offset }));
     }
 
+    const requestFilter = url.searchParams.get("request_id");
+    const requestId = requestFilter?.startsWith("eq.") ? requestFilter.slice(3) : "";
     if (request.method === "PATCH") {
-      const requestFilter = url.searchParams.get("request_id");
-      const requestId = requestFilter?.startsWith("eq.") ? requestFilter.slice(3) : "";
       const body = await readJsonBody(request, 1024);
       if (!uuidPattern.test(requestId) || !isReportStatus(expected) ||
         !body || typeof body !== "object" || !("status" in body) || !isReportStatus(body.status)) {
         return respond({ code: "invalid_request" }, 400);
       }
       const result = await store.updateStatus(requestId, expected, body.status);
+      return respond(result ? [result] : []);
+    }
+    if (request.method === "DELETE") {
+      if (!uuidPattern.test(requestId) || !isPublicStatus(expected) ||
+        url.searchParams.getAll("request_id").length !== 1 || url.searchParams.getAll("status").length !== 1) {
+        return respond({ code: "invalid_request" }, 400);
+      }
+      const result = await store.deletePublicReport(requestId.toLowerCase(), expected);
       return respond(result ? [result] : []);
     }
     return respond({ code: "invalid_request" }, 405);

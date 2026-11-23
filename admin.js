@@ -23,6 +23,8 @@ const actionMessage = document.getElementById('moderation-action-message');
 const reportsList = document.getElementById('moderation-reports');
 const loadMore = document.getElementById('moderation-more');
 const reportTemplate = document.getElementById('moderation-report-template');
+const deleteDialog = document.getElementById('moderation-delete-dialog');
+const deleteCode = document.getElementById('moderation-delete-code');
 
 const usesAccessKey = Boolean(reportsConfig.moderationUrl);
 const baseUrl = getServiceUrl();
@@ -89,6 +91,7 @@ function endSession(message = '', focus = false) {
   loginRequest?.abort();
   listRequest?.abort();
   session?.controller.abort();
+  if (deleteDialog?.open) deleteDialog.close('cancel');
   loginRequest = null;
   listRequest = null;
   session = null;
@@ -224,6 +227,15 @@ function reportActions(status) {
   return publicStatuses.includes(status) ? publicStatuses.filter(choice => choice !== status) : [];
 }
 
+function confirmReportDeletion(tracking) {
+  deleteCode.textContent = tracking;
+  deleteDialog.returnValue = 'cancel';
+  return new Promise(resolve => {
+    deleteDialog.addEventListener('close', () => resolve(deleteDialog.returnValue === 'delete'), { once: true });
+    deleteDialog.showModal();
+  });
+}
+
 function renderReportPhoto(report, field) {
   const button = field('photo-button');
   const image = field('photo');
@@ -290,7 +302,12 @@ function renderReport(report) {
   }
 
   const select = field('target');
-  const save = form.querySelector('button');
+  const save = form.querySelector('button[type="submit"]');
+  const deleteButton = field('delete');
+  if (deleteButton) {
+    deleteButton.hidden = !deleteDialog || !usesAccessKey || !publicStatuses.includes(report.status);
+    deleteButton.setAttribute('aria-label', `Eliminar reclamo ${tracking}`);
+  }
   const error = field('error');
   select.setAttribute('aria-label', `Nuevo estado para ${tracking}`);
   for (const choice of choices) {
@@ -310,16 +327,35 @@ function renderReport(report) {
     const choice = select.value;
     select.disabled = true;
     save.disabled = true;
+    deleteButton?.setAttribute('disabled', '');
     save.textContent = 'Guardando…';
     setMessage(error, '');
     const result = await changeStatus(report, choice);
     select.disabled = false;
     save.disabled = false;
+    deleteButton?.removeAttribute('disabled');
     save.textContent = 'Guardar estado';
     if (result) {
       setMessage(card.isConnected ? error : actionMessage, result, true);
       if (card.isConnected) save.focus();
     }
+  });
+  deleteButton?.addEventListener('click', async () => {
+    if (!deleteDialog || deleteButton.hidden || !getSession() || deleteDialog.open || pendingChanges.has(report.request_id)) return;
+    if (!await confirmReportDeletion(tracking) || !card.isConnected) return;
+    select.disabled = true;
+    save.disabled = true;
+    deleteButton.disabled = true;
+    deleteButton.textContent = 'Eliminando…';
+    setMessage(error, '');
+    const result = await deleteReport(report);
+    if (!card.isConnected) return;
+    select.disabled = false;
+    save.disabled = !choices.includes(select.value);
+    deleteButton.disabled = false;
+    deleteButton.textContent = 'Eliminar';
+    if (result) setMessage(error, result, true);
+    deleteButton.focus();
   });
   return card;
 }
@@ -424,6 +460,48 @@ async function changeStatus(report, status) {
       filter.focus();
     }
     setMessage(actionMessage, `Estado guardado para ${report.tracking_number}.`);
+    if (listRequest) void loadReports();
+    return '';
+  } finally {
+    if (session === active) pendingChanges.delete(report.request_id);
+  }
+}
+
+async function deleteReport(report) {
+  const active = getSession();
+  if (!active || pendingChanges.has(report.request_id)) return '';
+  pendingChanges.add(report.request_id);
+
+  try {
+    const params = new URLSearchParams({
+      request_id: `eq.${report.request_id}`,
+      status: `eq.${report.status}`,
+    });
+    const response = await request(`/rest/v1/reports?${params}`, {
+      method: 'DELETE',
+      token: active.token,
+      signal: active.controller.signal,
+    });
+    if (getSession() !== active || sessionRejected(response)) return '';
+    if (response.ok && Array.isArray(response.data) && response.data.length === 0) {
+      setMessage(actionMessage, 'El reclamo ya fue eliminado o cambió de estado. Actualizamos la lista.');
+      void loadReports();
+      return '';
+    }
+    if (!response.ok || response.data?.length !== 1 || response.data[0]?.request_id !== report.request_id) {
+      return 'No pudimos confirmar la eliminación. Actualizá la lista antes de reintentar.';
+    }
+
+    const card = records.get(report.request_id);
+    if (card) {
+      const hadFocus = card.contains(document.activeElement) || document.activeElement === document.body;
+      records.delete(report.request_id);
+      card.remove();
+      nextOffset = Math.max(0, nextOffset - 1);
+      updateListMessage();
+      if (hadFocus) filter.focus();
+    }
+    setMessage(actionMessage, `Reclamo ${report.tracking_number} eliminado.`);
     if (listRequest) void loadReports();
     return '';
   } finally {

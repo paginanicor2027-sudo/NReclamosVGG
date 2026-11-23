@@ -74,6 +74,10 @@
 .moderation-main :is(input, select):focus-visible { outline: 2px solid #00716c; outline-offset: 3px; }
 .moderation-secondary { border-color: #9cb8b5; background: #fff; color: #005854; }
 .moderation-secondary:hover { background: #e8f4f0; }
+.moderation-danger-outline:not(:disabled) { border-color: #bf776e; background: #fff; color: #9c261e; }
+.moderation-danger-outline:not(:disabled):hover { background: #f9eae7; }
+.moderation-danger { background: #9c261e; }
+.moderation-danger:hover { background: #782017; }
 .moderation-logout { border-color: #588078; background: transparent; color: #e8f4f0; }
 .moderation-logout:hover { background: #1a434a; }
 .moderation-logout:focus-visible { outline-color: var(--mint); }
@@ -129,6 +133,11 @@
 .moderation-metadata dd { margin: 0; }
 .moderation-transition { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin-top: 4px; }
 .moderation-transition label { display: grid; gap: 4px; }
+.moderation-confirmation { width: min(420px, calc(100% - 32px)); color: var(--ink); }
+.moderation-confirmation::backdrop { background: #10273a88; }
+.moderation-confirmation h2 { margin: 0; font-size: 1.2rem; }
+.moderation-confirmation p { line-height: 1.45; }
+.moderation-confirmation-actions { display: flex; flex-wrap: wrap; justify-content: end; gap: 8px; margin-top: 18px; }
 .moderation-more { margin-top: 14px; }
 
 @media (max-width: 510px) {
