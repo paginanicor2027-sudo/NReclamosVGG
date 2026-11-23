@@ -1,11 +1,9 @@
 import { reportsConfig } from './reports-config.js?v=vecinos-2';
 import { formatReportDate, publicStatuses, reportCategories, reportCategoryOption, reportEndpoint, reportHeaders, reportStatuses } from './report-client.js?v=categorias-1';
-import { createReportPictogram } from './report-pictograms.js?v=carteles-1';
+import { createReportCategorySign } from './report-pictograms.js?v=selector-1';
+import { initializeReportCategoryPicker } from './report-category-picker.js?v=selector-1';
 
 const publicIdPattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
-const roadwayCategories = new Set(['baches', 'arbolado', 'espacios_publicos', 'transito', 'veredas']);
-const riskCategories = new Set(['seguridad', 'gas', 'electricidad', 'cableado']);
-
 function addOptions(select, defaultLabel, labels, values, displayLabel = (value) => labels[value]) {
   select.add(new Option(defaultLabel, ''));
   for (const value of values) {
@@ -26,28 +24,14 @@ function appendCategoryTitle(parent, category, className) {
   const title = document.createElement('strong');
   title.classList.add('report-category-title');
   if (className) title.classList.add(className);
-  title.append(categorySign(category, true), reportCategories[category]);
+  title.append(createReportCategorySign(category, true), reportCategories[category]);
   parent.append(title);
-}
-
-function categorySign(category, compact = false) {
-  let family = 'services';
-  if (roadwayCategories.has(category)) family = 'roads';
-  else if (riskCategories.has(category)) family = 'risk';
-  else if (category === 'luminarias' || category === 'otros') family = 'lighting';
-
-  const badge = document.createElement('span');
-  badge.className = `report-signal-badge report-signal--${family}`;
-  if (compact) badge.classList.add('report-signal-badge--mini');
-  badge.setAttribute('aria-hidden', 'true');
-  badge.append(createReportPictogram(category));
-  return badge;
 }
 
 function signalIcon(leaflet, category, status) {
   return leaflet.divIcon({
     className: `report-signal-marker report-signal-marker--${status}`,
-    html: categorySign(category),
+    html: createReportCategorySign(category),
     iconSize: [40, 40],
     iconAnchor: [20, 20],
     popupAnchor: [0, -19],
@@ -116,6 +100,7 @@ function initializeMapReports(endpoint, map, leaflet) {
   const listMessage = document.getElementById('directory-list-status');
   const list = document.getElementById('directory-list');
   addOptions(category, 'Todas las categorías', reportCategories, Object.keys(reportCategories), reportCategoryOption);
+  initializeReportCategoryPicker(category, (key) => createReportCategorySign(key, true));
   addOptions(state, 'Todos los estados', reportStatuses, publicStatuses);
 
   const markers = leaflet.layerGroup().addTo(map);

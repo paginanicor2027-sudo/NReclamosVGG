@@ -1,5 +1,7 @@
 import { reportsConfig } from './reports-config.js?v=vecinos-2';
 import { reportCategories, reportCategoryOption, reportEndpoint, reportHeaders } from './report-client.js?v=categorias-1';
+import { createReportCategorySign } from './report-pictograms.js?v=selector-1';
+import { initializeReportCategoryPicker } from './report-category-picker.js?v=selector-1';
 
 const maxDescriptionLength = 400;
 const maxPhotoBytes = 180 * 1024;
@@ -155,6 +157,7 @@ export function initializeReportForm(map, leaflet, boundary) {
     option.setAttribute('aria-label', label);
     category.add(option);
   }
+  const categoryPicker = initializeReportCategoryPicker(category, (key) => createReportCategorySign(key, true));
   const gpsButtons = [useGps, useWizardGps];
   for (const button of gpsButtons) button.hidden = !navigator.geolocation;
   copyButton.hidden = !navigator.clipboard?.writeText;
@@ -235,7 +238,11 @@ export function initializeReportForm(map, leaflet, boundary) {
   }
 
   function renderReview() {
-    get('review-category').textContent = category.value ? reportCategoryOption(category.value) : '';
+    const categoryReview = get('review-category');
+    categoryReview.replaceChildren();
+    if (Object.hasOwn(reportCategories, category.value)) {
+      categoryReview.append(createReportCategorySign(category.value, true), reportCategories[category.value]);
+    }
     get('review-description').textContent = description.value.trim();
     get('review-location').textContent = (extendedIntake && locationLabel.value.trim()) || 'Punto marcado en el mapa';
     get('review-photo').textContent = photo ? 'Foto adjunta' : 'Sin foto';
@@ -357,6 +364,7 @@ export function initializeReportForm(map, leaflet, boundary) {
     cancelGps();
     gpsStatus.textContent = '';
     form.reset();
+    categoryPicker?.sync();
     step = steps[0];
     photoTask = null;
     setPhoto('');
@@ -364,6 +372,7 @@ export function initializeReportForm(map, leaflet, boundary) {
     updateContactFields();
     updateDescriptionCount();
     category.removeAttribute('aria-invalid');
+    categoryPicker?.setInvalid(false);
     description.removeAttribute('aria-invalid');
     formError.textContent = '';
     trackingCode.textContent = '';
@@ -511,6 +520,7 @@ export function initializeReportForm(map, leaflet, boundary) {
   for (const field of [category, description, contactName, contactEmail, contactPhone, contactOptIn]) {
     field.addEventListener('input', () => {
       field.removeAttribute('aria-invalid');
+      if (field === category) categoryPicker?.setInvalid(false);
       formError.textContent = '';
     });
   }
@@ -528,7 +538,12 @@ export function initializeReportForm(map, leaflet, boundary) {
   function showError(field, message) {
     formError.textContent = message;
     field.setAttribute('aria-invalid', 'true');
-    field.focus();
+    if (field === category && categoryPicker) {
+      categoryPicker.setInvalid(true);
+      categoryPicker.focus();
+    } else {
+      field.focus();
+    }
     return false;
   }
 
@@ -624,6 +639,7 @@ export function initializeReportForm(map, leaflet, boundary) {
     removeDraft();
     attempts.clear();
     form.reset();
+    categoryPicker?.sync();
     updateContactFields();
     setPhoto('');
     photoStatus.textContent = '';
@@ -636,6 +652,7 @@ export function initializeReportForm(map, leaflet, boundary) {
   });
 
   restoreDraft();
+  categoryPicker?.sync();
   updateContactFields();
   renderStep(false);
   trigger.hidden = false;

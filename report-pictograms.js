@@ -1,4 +1,6 @@
 const svgNamespace = 'http://www.w3.org/2000/svg';
+const roadwayCategories = new Set(['baches', 'arbolado', 'espacios_publicos', 'transito', 'veredas']);
+const riskCategories = new Set(['seguridad', 'gas', 'electricidad', 'cableado']);
 
 const pictogramPaths = Object.freeze({
   baches: 'M4 9h16v6H4zM6 15v4m12-4v4M7 15l4-6m1 6 4-6m1 6 3-4.5',
@@ -49,4 +51,18 @@ export function createReportPictogram(category) {
   if (filled) shape.setAttribute('fill-rule', 'evenodd');
   svg.append(shape);
   return svg;
+}
+
+export function createReportCategorySign(category, compact = false) {
+  let family = 'services';
+  if (roadwayCategories.has(category)) family = 'roads';
+  else if (riskCategories.has(category)) family = 'risk';
+  else if (category === 'luminarias' || category === 'otros') family = 'lighting';
+
+  const badge = document.createElement('span');
+  badge.className = `report-signal-badge report-signal--${family}`;
+  if (compact) badge.classList.add('report-signal-badge--mini');
+  badge.setAttribute('aria-hidden', 'true');
+  badge.append(createReportPictogram(category));
+  return badge;
 }
