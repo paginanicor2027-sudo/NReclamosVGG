@@ -12,6 +12,5 @@ fallthrough = true
 [[d1_databases]]
 binding = "REPORTS_DB"
 database_name = "reclamosvgg"
-# Replace this local placeholder with the ID returned when creating the remote database.
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "98f11a6a-dc0e-48d4-8454-5a93f0af4572"
 migrations_dir = "migrations"
