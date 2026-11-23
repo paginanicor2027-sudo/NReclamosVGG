@@ -590,6 +590,69 @@ body {
 .report-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 9px; border-bottom: 1px solid var(--line); }
 .report-dialog-header h2:focus { outline: none; }
 
+.welcome-dialog {
+  --welcome-inset: clamp(14px, 4vw, 30px);
+  width: min(100% - 24px, 680px);
+  overflow: hidden;
+  border-color: #3c4451;
+  border-top-color: var(--campaign-yellow);
+  color: #edf0f5;
+  background: var(--panel);
+  font-size: clamp(.9rem, 2.2vw, 1rem);
+  line-height: 1.5;
+}
+
+.welcome-dialog[open] { display: flex; flex-direction: column; }
+.welcome-dialog::backdrop { background: #0d1015b3; }
+
+.welcome-content {
+  min-height: 0;
+  padding: var(--welcome-inset);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.welcome-heading {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 16px);
+  margin-bottom: 10px;
+}
+
+.welcome-heading img { width: clamp(52px, 11vw, 72px); height: auto; }
+.welcome-heading h2 {
+  color: var(--campaign-yellow);
+  font-size: clamp(1.6rem, 5.5vw, 2.6rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.welcome-heading h2:focus { outline: none; }
+.welcome-content > p { margin: 0 0 12px; }
+.welcome-credit { color: var(--campaign-yellow); }
+
+.welcome-steps { margin: 0 0 12px; padding-inline-start: 22px; }
+.welcome-steps li + li { margin-top: 4px; }
+.welcome-steps li::marker { color: var(--campaign-yellow); font-weight: 750; }
+
+.welcome-priority {
+  padding: 10px 13px;
+  border-inline-start: 4px solid var(--orange);
+  border-radius: 8px;
+  background: #242b36;
+}
+.welcome-priority h3 { margin: 0 0 4px; color: var(--campaign-yellow); font: 400 1.15rem/1.2 var(--display-font); }
+.welcome-priority p { margin: 0; }
+
+.welcome-actions { flex-shrink: 0; padding: 12px var(--welcome-inset); border-top: 1px solid #3c4451; }
+.welcome-status { margin: 0; color: var(--warm); font-size: .9rem; }
+.welcome-status:not(:empty) { margin-bottom: 8px; }
+.welcome-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.welcome-dismiss { border-color: #495361; background: #242b36; color: var(--paper); }
+.welcome-dismiss:hover { background: #343b48; }
+.welcome-close { flex: 0 0 44px; align-self: flex-start; margin-inline-start: auto; padding: 0; border-radius: 50%; font-size: 1.45rem; }
+.welcome-report { background: var(--campaign-yellow); }
+.welcome-dialog .report-button:focus-visible { outline-color: var(--campaign-yellow); }
+
 #report-form { display: grid; gap: 11px; margin-top: 12px; }
 #report-form > .report-button { justify-self: start; }
 .report-location-summary {
@@ -729,6 +792,10 @@ body {
     grid-column: 1 / -1;
     margin-inline-start: 0;
   }
+}
+
+@media (max-width: 440px) {
+  .welcome-buttons > button { flex: 1 1 auto; padding-inline: 9px; }
 }
 
 @media (max-width: 375px) {

@@ -9,11 +9,11 @@
     <title>ReclamosVGG · Villa Gobernador Gálvez</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
-    <link rel="stylesheet" href="./styles.css?v=mi-ciudad-3">
+    <link rel="stylesheet" href="./styles.css?v=bienvenida-1">
     <link rel="stylesheet" href="./report-signals.css?v=redisenio-1">
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
-    <script defer src="./app.js?v=titulo-reclamo-1"></script>
+    <script defer src="./app.js?v=bienvenida-1"></script>
   </head>
   <body class="public-map-page">
     <header class="site-header map-header">
@@ -36,7 +36,7 @@
       <aside class="workspace-panel" aria-label="Reclamos vecinales">
         <div class="workspace-heading">
           <p class="city-tagline">MI CIUDAD</p>
-          <h2 id="city-name">Villa Gobernador Gálvez</h2>
+          <h2 id="city-name" tabindex="-1">Villa Gobernador Gálvez</h2>
           <p class="city-tagline city-tagline--closing">¡NO SU OFICINA!</p>
         </div>
         <div id="report-directory" class="report-directory" hidden>
@@ -71,7 +71,7 @@
       </aside>
 
       <div class="map-view">
-        <div id="map" role="region" aria-label="Mapa interactivo de Villa Gobernador Gálvez"
+        <div id="map" role="region" tabindex="-1" aria-label="Mapa interactivo de Villa Gobernador Gálvez"
           aria-describedby="map-instructions"></div>
         <p id="map-instructions" class="visually-hidden">Usá las flechas del teclado para desplazarte y las teclas más y menos para cambiar el nivel de zoom.</p>
 
@@ -119,6 +119,38 @@
         <noscript><p class="map-status">Activá JavaScript para ver el mapa.</p></noscript>
       </div>
     </main>
+
+    <dialog id="welcome-dialog" class="report-dialog welcome-dialog" aria-labelledby="welcome-title">
+      <div class="welcome-content">
+        <header class="welcome-heading">
+          <img src="./assets/cartel-primeros-100-dias.png" alt="" width="72" height="72" decoding="async">
+          <h2 id="welcome-title" tabindex="-1" autofocus>ReclamosVGG</h2>
+          <button class="report-button welcome-dismiss welcome-close" type="submit" form="welcome-actions" aria-label="Cerrar bienvenida">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <p class="welcome-credit"><strong>Una iniciativa de Nicolás Ramírez para Villa Gobernador Gálvez.</strong></p>
+        <p>¿Hay un bache, una luminaria apagada o basura acumulada en tu barrio? <strong>Marcá el problema en el mapa.</strong> Podés cargar tu reclamo sin registrarte.</p>
+        <ol class="welcome-steps">
+          <li><strong>Adjuntá una foto</strong> del problema, si tenés.</li>
+          <li><strong>Elegí la categoría</strong> y contanos qué pasa.</li>
+          <li><strong>Ubicá el problema.</strong> Buscá la dirección, usá tu ubicación o marcá el punto en el mapa.</li>
+          <li><strong>Revisá y enviá.</strong> Si querés, dejá un contacto. Tus datos quedan en privado.</li>
+        </ol>
+        <p>Guardá el <strong>código de seguimiento</strong> para consultar el estado de tu reclamo. Una vez aprobado, aparecerá en el mapa.</p>
+        <section class="welcome-priority" aria-labelledby="welcome-priority-title">
+          <h3 id="welcome-priority-title">Los primeros 100 días de Nico</h3>
+          <p>Si llegamos a la Intendencia en 2027, <strong>nuestra prioridad será resolver los problemas que los vecinos marquen en este mapa</strong>.</p>
+        </section>
+      </div>
+      <form id="welcome-actions" class="welcome-actions" method="dialog">
+        <p id="welcome-status" class="welcome-status" role="status"></p>
+        <div class="welcome-buttons">
+          <button class="report-button welcome-dismiss" type="submit" value="map">Ver el mapa</button>
+          <button id="welcome-report" class="report-button welcome-report" type="button">Cargar un reclamo</button>
+        </div>
+      </form>
+    </dialog>
 
     <dialog id="report-dialog" class="report-dialog report-wizard" aria-labelledby="report-dialog-title">
       <div class="report-dialog-body">

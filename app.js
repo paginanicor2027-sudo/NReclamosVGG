@@ -148,4 +148,45 @@ async function initializeMap() {
   }
 }
 
-initializeMap();
+function initializeWelcome(mapReady) {
+  const dialog = document.getElementById('welcome-dialog');
+  const sharedReport = new URLSearchParams(window.location.search).has('reclamo');
+  if (sharedReport || typeof dialog.showModal !== 'function') return;
+
+  const openReport = document.getElementById('welcome-report');
+  const status = document.getElementById('welcome-status');
+  const trigger = document.getElementById('report-trigger');
+
+  dialog.addEventListener('close', () => {
+    if (dialog.returnValue === 'report') return;
+    const target = dialog.returnValue === 'map' ? 'map' : 'city-name';
+    document.getElementById(target).focus();
+  });
+
+  openReport.addEventListener('click', async () => {
+    if (trigger.hidden) {
+      openReport.disabled = true;
+      status.textContent = 'Estamos preparando el formulario…';
+      await mapReady;
+      openReport.disabled = false;
+    }
+    if (!dialog.open) return;
+
+    if (trigger.hidden) {
+      status.textContent = 'El formulario no está disponible en este momento. Probá recargando la página.';
+      openReport.focus();
+      return;
+    }
+
+    dialog.close('report');
+    trigger.click();
+  });
+
+  dialog.showModal();
+}
+
+const mapReady = initializeMap().catch((error) => {
+  console.warn('No se pudo iniciar el mapa.', error);
+  mapStatus.textContent = 'No se pudo iniciar el mapa. Volvé a cargar la página.';
+});
+initializeWelcome(mapReady);
