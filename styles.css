@@ -179,18 +179,30 @@ body {
 }
 
 .workspace-heading {
-  padding: 14px 14px 15px;
-  border-inline-start: 4px solid var(--yellow);
-  border-radius: 9px;
+  display: grid;
+  grid-template-columns: fit-content(100%);
+  container-type: inline-size;
+  padding: 12px 16px 8px;
+  border-inline-start: 5px solid var(--yellow);
+  border-radius: 12px;
   color: var(--paper);
   background: var(--panel);
 }
 
-.city-province { margin: 0 0 5px; color: var(--yellow); font-size: .74rem; font-weight: 700; }
+.city-tagline {
+  margin: 0;
+  color: var(--orange);
+  font-size: clamp(.94rem, 5.5cqi, 1.3rem);
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+.city-tagline--closing { text-align: end; }
+
 .workspace-heading h2 {
   margin: 0;
-  font: 400 clamp(1.35rem, 2.15vw, 1.75rem)/1.13 var(--display-font);
-  letter-spacing: .015em;
+  font: 400 clamp(1.25rem, 10cqi, 2.25rem)/1.13 var(--display-font);
+  letter-spacing: .01em;
 }
 
 .map-view {
@@ -682,9 +694,6 @@ body {
   .report-message { padding-block: 9px; }
   .map-workspace { grid-template-columns: minmax(0, 1fr); gap: 9px; padding: 9px; }
   .workspace-panel { gap: 10px; padding: 10px; overflow: visible; }
-  .workspace-heading { padding: 9px 11px 10px; }
-  .workspace-heading h2 { font-size: 1.36rem; }
-  .city-province { margin-bottom: 3px; font-size: .7rem; }
   .city-links { padding-top: 8px; }
   .directory-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
   .directory-filters:not([open]) { grid-column: auto; }
