@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#10273a">
+    <meta name="description" content="Mapa interactivo de Villa Gobernador Gálvez, Santa Fe. Un proyecto de Nicolás Ramírez.">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>NReclamosVGG · Villa Gobernador Gálvez</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+    <link rel="stylesheet" href="./styles.css">
+    <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <span class="brand-mark" aria-hidden="true"><span class="pin-icon"></span></span>
+      <div class="site-brand">
+        <span class="site-name">NReclamosVGG</span>
+        <span class="site-credit">Proyecto de Nicolás Ramírez</span>
+      </div>
+    </header>
+
+    <main class="map-view" aria-labelledby="city-name">
+      <div id="map" role="region" aria-label="Mapa interactivo de Villa Gobernador Gálvez"
+        aria-describedby="map-instructions"></div>
+      <p id="map-instructions" class="visually-hidden">Usá las flechas del teclado para desplazarte y las teclas más y menos para cambiar el nivel de zoom.</p>
+
+      <div class="city-card">
+        <p class="city-province">Santa Fe, Argentina</p>
+        <h1 id="city-name">Villa Gobernador Gálvez</h1>
+      </div>
+
+      <div class="map-controls" role="group" aria-label="Controles del mapa">
+        <button id="reset-view" class="map-button reset-button" type="button"
+          aria-label="Volver a Villa Gobernador Gálvez" title="Volver a Villa Gobernador Gálvez" disabled>
+          <span class="target-icon" aria-hidden="true"></span>
+          <span class="reset-label" aria-hidden="true">Volver a Villa Gobernador Gálvez</span>
+        </button>
+        <div class="zoom-controls" role="group" aria-label="Zoom">
+          <button id="zoom-in" class="map-button zoom-button" type="button" aria-label="Acercar" title="Acercar" disabled>
+            <span class="zoom-icon plus" aria-hidden="true"></span>
+          </button>
+          <button id="zoom-out" class="map-button zoom-button" type="button" aria-label="Alejar" title="Alejar" disabled>
+            <span class="zoom-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <div id="boundary-legend" class="map-legend" hidden>
+        <span class="legend-swatch" aria-hidden="true"></span>
+        <span>Límite municipal</span>
+      </div>
+      <p id="map-status" class="map-status" role="status"></p>
+      <noscript><p class="map-status">Activá JavaScript para ver el mapa.</p></noscript>
+    </main>
+  </body>
+</html>
